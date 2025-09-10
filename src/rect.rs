@@ -1,9 +1,11 @@
-#[derive(Debug, PartialEq)]
+use std::ops;
+
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Rect {
     pub x: u32,
     pub y: u32,
-    pub w: u32,
-    pub h: u32,
+    pub width: u32,
+    pub height: u32,
 }
 
 impl Rect {
@@ -11,8 +13,15 @@ impl Rect {
         Self {
             x,
             y,
-            w: width,
-            h: height,
+            width,
+            height,
+        }
+    }
+    /// width + x, height + x
+    pub fn total(self) -> Size {
+        Size {
+            width: self.width + self.x,
+            height: self.height + self.y,
         }
     }
 }
@@ -35,7 +44,32 @@ impl Point {
     }
 }
 
-#[derive(Clone, Copy)]
+impl ops::Add<Rect> for Point {
+    type Output = Rect;
+
+    fn add(self, rhs: Rect) -> Self::Output {
+        Rect {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            width: rhs.width,
+            height: rhs.height
+        }
+    }
+}
+
+impl ops::Add<Point> for Point {
+    type Output = Point;
+
+    fn add(self, rhs: Point) -> Self::Output {
+        Point {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
+    }
+}
+
+
+#[derive(Clone, Copy, Debug)]
 pub struct Size {
     pub width: u32,
     pub height: u32,

@@ -14,9 +14,9 @@ pub(crate) fn source_char(c: char) -> Rect {
 }
 
 /// calculate size of a text string, does not yet take into account newlines
-pub fn text_size(nchars: usize) -> Size {
+pub fn text_size(str: &str) -> Size {
     let mut glyph = GLYPH_SIZE * DEFAULT_SCALE;
-    glyph.width = glyph.width * nchars as u32;
+    glyph.width = glyph.width * str.len() as u32;
     glyph
 }
 

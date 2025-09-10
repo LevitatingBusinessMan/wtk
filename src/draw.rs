@@ -6,7 +6,9 @@
 //! So the process is this, the widget interacts with [DrawContext] to create a list of [DrawCommand]s.
 //! These [DrawCommand] are then converted by [DrawContext::run_backend] to [DrawBackend] methods.
 
-use crate::prelude::*;
+use std::cmp;
+
+use crate::{font, prelude::*};
 
 #[derive(Debug)]
 enum DrawCommand {
@@ -22,7 +24,7 @@ enum DrawCommand {
  * actual rendering backend.
 */
 pub struct DrawContext {
-    bounds: Rect,
+    offset: Point,
     commands: Vec<DrawCommand>,
 }
 
@@ -34,26 +36,46 @@ impl DrawContext {
     pub fn draw_text<T: Into<String>>(&mut self, text: T, pos: Point) {
         self.commands.push(DrawCommand::Text(text.into(), pos));
     }
-    /// Get the draw bounds of this context.
-    pub fn bounds(&self) -> &Rect {
-        &self.bounds
+    /// Get the draw offset
+    pub fn offset(&self) -> Point {
+        self.offset
     }
     pub(crate) fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
         eprintln!("{:?}", self.commands);
         for command in &self.commands {
             match command {
-                DrawCommand::Rect(rect) => backend.draw_rect(rect),
+                DrawCommand::Rect(rect) => backend.draw_rect(self.offset + *rect),
                 DrawCommand::Color(color) => backend.set_color(*color),
-                DrawCommand::Text(text, point) => backend.draw_text(text, *point)
+                DrawCommand::Text(text, point) => backend.draw_text(text, self.offset + *point)
             }
         }
     }
     pub(crate) fn new(widget: &dyn Widget, pos: Point) -> Self {
         Self {
-            bounds: pos.with_size(widget.size()),
+            offset: pos,
             commands: vec![
                 DrawCommand::Color(Color::RGB(0, 0, 0))
             ],
         }
+    }
+    /// The bounds of all the combined draw commands,
+    /// used to generate the next position in the layout.
+    pub(crate) fn bounds(&self) -> Rect {
+        let mut max = Size::new(0, 0);
+        for command in &self.commands {
+            match command {
+                DrawCommand::Rect(rect) => {
+                    max.width = cmp::max(max.width, rect.width + rect.x);
+                    max.height = cmp::max(max.height, rect.height + rect.y);
+                },
+                DrawCommand::Color(color) => {},
+                DrawCommand::Text(text, point) => {
+                    let rect = point.with_size(font::text_size(text));
+                    max.width = cmp::max(max.width, rect.width + rect.x);
+                    max.height = cmp::max(max.height, rect.height + rect.y);
+                },
+            }
+        }
+        self.offset.with_size(max)
     }
 }

@@ -23,27 +23,25 @@ impl Button {
 
 impl Widget for Button {
 
-    fn process_event(&mut self, e: &Event) {
+    fn process_event(&mut self, e: &Event) -> bool {
         match e {
             Event::MouseButtonDown { button: _, clicks: _, pos } => {
                 if let Some(cb) = &self.cb {
                     let cb = cb.clone();
                     cb(self);
+                    return true;
                 }
             },
             _ => {}
         }
+        return false;
     }
     
     fn draw(&self, ctx: &mut DrawContext) {
-        let text_size = font::text_size(self.text.len());
+        let text_size = font::text_size(&self.text);
         let padding = 6;
         ctx.draw_text(&self.text, Point::new(padding, padding));
         ctx.draw_rect(Point::zero().with_size(text_size + padding * 2));
-    }
-    
-    fn size(&self) -> Size {
-        return Size::new(50, 30)
     }
 
     // fn as_any_mut(&mut self) -> &mut dyn std::any::Any { self }

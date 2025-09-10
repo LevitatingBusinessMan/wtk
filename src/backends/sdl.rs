@@ -1,4 +1,4 @@
-use sdl2::{self, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
+use sdl2::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
 use crate::{font::{self}, prelude::*};
 
 use super::DrawBackend;
@@ -37,6 +37,9 @@ impl Backend for SDLBackend {
     fn draw_backend(&mut self) -> &mut impl DrawBackend {
         &mut self.canvas
     }
+    fn resize(&mut self, size: Size) {
+        self.canvas.window_mut().set_size(size.width, size.height).unwrap();
+    }
 }
 
 impl Into<Event> for sdl2::event::Event {
@@ -45,7 +48,10 @@ impl Into<Event> for sdl2::event::Event {
             Self::Quit{ timestamp: _ } => Event::Quit,
             Self::MouseButtonDown{ timestamp: _, window_id: _, which: _, mouse_btn, clicks, x, y }  => {
                 Event::MouseButtonDown { button: mouse_btn.into(), clicks, pos: Point::new(x as u32, y as u32)}
-            }
+            },
+            Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {
+                Event::Resized(Size::new(w as u32, h as u32))
+            },
             _ => {
                 eprintln!("Unknown SDL event: {self:?}");
                 Event::Unsupported
@@ -72,20 +78,27 @@ impl Into<Rect> for &sdl2::rect::Rect {
         Rect {
             x: self.x as u32,
             y: self.y as u32,
-            w: self.w as u32,
-            h: self.h as u32,
+            width: self.w as u32,
+            height: self.h as u32,
         }
     }
 }
 
 impl Into<sdl2::rect::Rect> for &Rect {
     fn into(self) -> sdl2::rect::Rect {
-        sdl2::rect::Rect::new(self.x as i32, self.y as i32, self.w, self.h)
+        sdl2::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
     }
 }
 
+impl Into<sdl2::rect::Rect> for Rect {
+    fn into(self) -> sdl2::rect::Rect {
+        sdl2::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
+    }
+}
+
+
 impl DrawBackend for Canvas<sdl2::video::Window> {
-    fn draw_rect(&mut self, rect: &Rect) {
+    fn draw_rect(&mut self, rect: Rect) {
         self.draw_rect(rect.into()).unwrap();
     }
     fn clear(&mut self) {

@@ -8,7 +8,8 @@ pub enum Event {
         button: input::MouseButton,
         clicks: u8,
         pos: Point,
-    }
+    },
+    Resized(Size),
 }
 
 pub mod input {
