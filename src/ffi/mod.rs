@@ -41,7 +41,7 @@ extern "C" fn wtk_button_share(button: *mut Button) -> *mut SharedWidget {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn wtk_button_set_text(text: *const c_char, button: *mut Button) {
+extern "C" fn wtk_button_set_text(button: *mut Button, text: *const c_char) {
     let text = unsafe { ffi::CStr::from_ptr(text).to_str().unwrap() };
     let button = unsafe { &mut *button };
     button.set_text(text);

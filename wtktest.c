@@ -1,7 +1,7 @@
 #include "src/ffi/libwtk.h"
 
 void on_click(wtk_button_t button) {
-    wtk_button_set_text("clicked", button);
+    wtk_button_set_text(button, "clicked");
 }
 
 int main(void) {
