@@ -21,24 +21,24 @@ extern "C" fn wtk_app_run(app: *mut App<SDLBackend>) {
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn wtk_button_new(text: *const c_char, cb: extern "C" fn(*mut Button)) -> *mut SharedWidget {
+extern "C" fn wtk_button_new(text: *const c_char, cb: extern "C" fn(*mut Button)) -> *mut Button {
     let text = unsafe { ffi::CStr::from_ptr(text).to_str().unwrap() };
     let button = Button::new(text, move |b| {
         cb(b)
-    }).shared();
+    });
     Box::into_raw(Box::new(button))
 }
 
 #[unsafe(no_mangle)]
-extern "C" fn wtk_button_destroy(button: *mut Rc<RefCell<Button>>) {
+extern "C" fn wtk_widget_destroy(button: *mut SharedWidget) {
     let _ = unsafe { Box::from_raw(button) };
 }
 
-// #[unsafe(no_mangle)]
-// extern "C" fn wtk_button_share(button: *mut Button) -> *mut SharedWidget {
-//     let buttom = unsafe { Box::from_raw(button) };
-//     Box::into_raw(Box::new(button.shared()))
-// }
+#[unsafe(no_mangle)]
+extern "C" fn wtk_button_share(button: *mut Button) -> *mut SharedWidget {
+    let button = unsafe { Box::from_raw(button) };
+    Box::into_raw(Box::new((*button).shared()))
+}
 
 #[unsafe(no_mangle)]
 extern "C" fn wtk_button_set_text(text: *const c_char, button: *mut Button) {
