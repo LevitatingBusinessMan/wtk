@@ -1,7 +1,6 @@
 pub mod button;
 pub use button::Button;
 
-use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 

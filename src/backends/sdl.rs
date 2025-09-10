@@ -1,5 +1,5 @@
-use sdl2::{self, image::LoadTexture, mouse::MouseButton, render::{Canvas, Texture, TextureCreator}, sys::SDL_Event, video::{self, Window, WindowContext}, EventPump, Sdl, VideoSubsystem};
-use crate::{font::{self, source_char}, prelude::*};
+use sdl2::{self, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
+use crate::{font::{self}, prelude::*};
 
 use super::DrawBackend;
 

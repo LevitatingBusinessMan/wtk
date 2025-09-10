@@ -1,6 +1,6 @@
 use libc::c_char;
-use std::{cell::RefCell, ffi, rc::Rc};
-use crate::{prelude::*, widgets::{button, SharedWidget}};
+use std::ffi;
+use crate::{prelude::*, widgets::SharedWidget};
 
 #[unsafe(no_mangle)]
 extern "C" fn wtk_app_sdl_new(title: *const c_char) -> *mut App<SDLBackend> {
