@@ -25,7 +25,7 @@ impl<B> App<B> where B: Backend {
             Event::Quit => {
                 self.quit = true;
                 return;
-            }
+            },
             _ => {},
         }
         for widget in &self.widgets {

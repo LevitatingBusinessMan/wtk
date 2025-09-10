@@ -41,13 +41,25 @@ pub struct Size {
     pub height: u32,
 }
 
-impl std::ops::Mul<Size> for f64 {
+impl std::ops::Mul<f64> for Size {
     type Output = Size;
 
-    fn mul(self, rhs: Size) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Size {
-            width: ((rhs.width as f64) * self).round() as u32,
-            height: ((rhs.height as f64) * self).round() as u32
+            width: ((self.width as f64) * rhs).round() as u32,
+            height: ((self.height as f64) * rhs).round() as u32
+        }
+    }
+}
+
+/// add to width and height
+impl std::ops::Add<u32> for Size {    
+    type Output = Size;
+    
+    fn add(self, rhs: u32) -> Self::Output {
+        Self {
+            width: self.width + rhs,
+            height: self.height + rhs,
         }
     }
 }

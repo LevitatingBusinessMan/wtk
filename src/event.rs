@@ -1,15 +1,18 @@
+use crate::prelude::*;
+
+#[derive(Debug)]
 pub enum Event {
     Quit,
     Unsupported,
     MouseButtonDown{
         button: input::MouseButton,
         clicks: u8,
-        x: u32,
-        y: u32
+        pos: Point,
     }
 }
 
 pub mod input {
+    #[derive(Debug)]
     pub enum MouseButton {
         Left,
         Right,

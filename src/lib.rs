@@ -1,3 +1,4 @@
+#![feature(fn_traits)]
 pub mod widgets;
 pub mod rect;
 pub mod event;

@@ -44,7 +44,7 @@ impl Into<Event> for sdl2::event::Event {
         match self {
             Self::Quit{ timestamp: _ } => Event::Quit,
             Self::MouseButtonDown{ timestamp: _, window_id: _, which: _, mouse_btn, clicks, x, y }  => {
-                Event::MouseButtonDown { button: mouse_btn.into(), clicks, x: x as u32, y: y as u32 }
+                Event::MouseButtonDown { button: mouse_btn.into(), clicks, pos: Point::new(x as u32, y as u32)}
             }
             _ => {
                 eprintln!("Unknown SDL event: {self:?}");
@@ -105,7 +105,7 @@ impl DrawBackend for Canvas<sdl2::video::Window> {
             self.copy(
                 &texture,
                 Some((&crate::font::source_char(c)).into()),
-                Some((&pos.with_size(2.0 * font::GLYPH_SIZE)).into())
+                Some((&pos.with_size(font::GLYPH_SIZE * font::DEFAULT_SCALE)).into())
             ).unwrap();
             pos.x += crate::font::GLYPH_SIZE.width * 2;
         }

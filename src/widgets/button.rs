@@ -1,16 +1,18 @@
-use crate::prelude::*;
+use std::{cell::RefCell, rc::Rc};
+
+use crate::{font, prelude::*};
 
 pub struct Button {
     text: String,
-    cb: Option<Box<dyn Fn(&mut Button)>>,
+    cb: Option<Rc<dyn Fn(&mut Button)>>,
 }
 
 impl Button {
-    pub fn new<T: Fn(&mut Button) -> ()>(text: impl Into<String>, cb: T) -> Button {
-        Button { text: text.into(), cb: None }
+    pub fn new<F>(text: impl Into<String>, cb: F) -> Button where F: Fn(&mut Button) + 'static{
+        Button { text: text.into(), cb: Some(Rc::new(cb)) }
     }
-    pub fn on_click(&mut self, cb: &dyn Fn(Button)) -> &mut Self {
-        self.cb = None;
+    pub fn on_click<F>(&mut self, cb: F) -> &mut Self where F: Fn(&mut Button) + 'static {
+        self.cb = Some(Rc::new(cb));
         self
     }
     pub fn set_text(&mut self, text: impl Into<String>) -> &mut Self {
@@ -22,11 +24,22 @@ impl Button {
 impl Widget for Button {
 
     fn process_event(&mut self, e: &Event) {
+        match e {
+            Event::MouseButtonDown { button: _, clicks: _, pos } => {
+                if let Some(cb) = &self.cb {
+                    let cb = cb.clone();
+                    cb(self);
+                }
+            },
+            _ => {}
+        }
     }
     
     fn draw(&self, ctx: &mut DrawContext) {
-        ctx.draw_rect(Point::zero().with_size(self.size()));
-        ctx.draw_text(&self.text, Point::zero());
+        let text_size = font::text_size(self.text.len());
+        let padding = 6;
+        ctx.draw_text(&self.text, Point::new(padding, padding));
+        ctx.draw_rect(Point::zero().with_size(text_size + padding * 2));
     }
     
     fn size(&self) -> Size {
