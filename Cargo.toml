@@ -5,6 +5,7 @@ edition = "2024"
 authors = ["Rein Fernhout"]
 description = "Simple widget toolkit"
 license = "MIT"
+homepage = "https://github.com/LevitatingBusinessMan/wtk"
 
 [lib]
 name = "wtk"
