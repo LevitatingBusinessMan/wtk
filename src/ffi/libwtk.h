@@ -1,0 +1,10 @@
+typedef void* wtk_app_t;
+wtk_app_t wtk_app_sdl_new(char* title);
+void wtk_app_sdl_destroy(wtk_app_t app);
+void wtk_app_run(wtk_app_t app);
+typedef void* wtk_widget_t;
+typedef void* wtk_button_t;
+typedef void (*wtk_button_callback_t)(wtk_button_t button);
+wtk_widget_t wtk_button_new(char* text, wtk_button_callback_t cb);
+void wtk_button_set_text(char* text, wtk_button_t button);
+void wtk_app_sdl_add_widget(wtk_app_t app, wtk_widget_t widget);
