@@ -6,9 +6,7 @@
 //! So the process is this, the widget interacts with [DrawContext] to create a list of [DrawCommand]s.
 //! These [DrawCommand] are then converted by [DrawContext::run_backend] to [DrawBackend] methods.
 
-use sdl2::pixels::Color;
-
-use crate::{prelude::*, rect};
+use crate::prelude::*;
 
 #[derive(Debug)]
 enum DrawCommand {
@@ -45,7 +43,7 @@ impl DrawContext {
             }
         }
     }
-    pub(crate) fn new(widget: &dyn Widget, pos: rect::Position) -> Self {
+    pub(crate) fn new(widget: &dyn Widget, pos: Position) -> Self {
         Self {
             bounds: pos.with_size(&widget.size()),
             commands: vec![

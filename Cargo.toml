@@ -3,5 +3,12 @@ name = "wtk"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "wtk"
+path = "src/lib.rs"
+
+[features]
+default = ["sdl2"]
+
 [dependencies]
-sdl2 = { version = "0", features = ["gfx"] }
+sdl2 = { version = "0", features = ["gfx", "ttf"], optional = true }

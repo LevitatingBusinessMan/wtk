@@ -1,4 +1,6 @@
+#[cfg(feature = "sdl2")]
 mod sdl;
+#[cfg(feature = "sdl2")]
 pub use sdl::SDLBackend;
 
 use crate::prelude::*;
@@ -15,7 +17,7 @@ pub trait DrawBackend {
     /// Draw a [Rect]
     fn draw_rect(&mut self, rect: &Rect);
     /// Use a specific color
-    fn set_color(&mut self, color: sdl2::pixels::Color);
+    fn set_color(&mut self, color: Color);
     /// Clear the surface
     fn clear(&mut self);
     /// Present drawings

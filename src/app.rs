@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::{event::Event, widgets::SharedWidget};
-use crate::Backend;
+use crate::backends::Backend;
 
 
 pub struct App<B> where B: Backend {
