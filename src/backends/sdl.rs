@@ -21,12 +21,8 @@ impl Backend for SDLBackend {
         let mut canvas = win.into_canvas().build().unwrap();
         let event_pump = ctx.event_pump().unwrap();
 
-        // clear
-        {
-            canvas.set_draw_color(Color::RGB(0, 0, 0));
-            canvas.clear();
-            canvas.present();
-        }
+        DrawBackend::clear(&mut canvas);
+        canvas.present();
 
         Self {
             ctx,
@@ -37,6 +33,9 @@ impl Backend for SDLBackend {
     }
     fn poll_event(&mut self) -> Option<Event> {
         self.event_pump.poll_event().map(Into::<Event>::into)
+    }
+    fn draw_backend(&mut self) -> &mut impl DrawBackend {
+        &mut self.canvas
     }
 }
 
@@ -68,7 +67,7 @@ impl Into<crate::event::input::MouseButton> for sdl2::mouse::MouseButton {
     }
 }
 
-impl Into<crate::Rect> for sdl2::rect::Rect {
+impl Into<crate::Rect> for &sdl2::rect::Rect {
     fn into(self) -> crate::Rect {
         crate::Rect {
             x: self.x as u32,
@@ -79,14 +78,24 @@ impl Into<crate::Rect> for sdl2::rect::Rect {
     }
 }
 
-impl Into<sdl2::rect::Rect> for crate::Rect {
+impl Into<sdl2::rect::Rect> for &crate::Rect {
     fn into(self) -> sdl2::rect::Rect {
         sdl2::rect::Rect::new(self.x as i32, self.y as i32, self.w, self.h)
     }
 }
 
 impl DrawBackend for Canvas<sdl2::video::Window> {
-    fn draw_rect(&mut self, rect: Rect) {
+    fn draw_rect(&mut self, rect: &Rect) {
         self.draw_rect(rect.into()).unwrap();
+    }
+    fn clear(&mut self) {
+        self.set_draw_color(Color::WHITE);
+        self.clear();
+    }
+    fn present(&mut self) {
+        self.present();
+    }
+    fn set_color(&mut self, color: sdl2::pixels::Color) {
+        self.set_draw_color(color);
     }
 }

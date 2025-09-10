@@ -1,17 +1,16 @@
 use crate::prelude::*;
 
-#[derive(Debug)]
 pub struct Button {
     text: String,
-    cb: Option<()>,
+    cb: Option<Box<dyn Fn(&mut Button)>>,
 }
 
 impl Button {
-    pub fn new<T: Fn() -> ()>(text: impl Into<String>, cb: T) -> Button {
+    pub fn new<T: Fn(&mut Button) -> ()>(text: impl Into<String>, cb: T) -> Button {
         Button { text: text.into(), cb: None }
     }
-    pub fn on_click(&mut self, cb: ()) -> &mut Self {
-        self.cb = Some(());
+    pub fn on_click(&mut self, cb: &dyn Fn(Button)) -> &mut Self {
+        self.cb = None;
         self
     }
     pub fn set_text(&mut self, text: impl Into<String>) -> &mut Self {
@@ -23,14 +22,13 @@ impl Button {
 impl Widget for Button {
 
     fn process_event(&mut self, e: &Event) {
-        
     }
     
-    fn draw<B>(&self, ctx: &mut DrawContext<B>) where B: DrawBackend {
-        ctx.draw_rect(Rect::new(0, 0, 30, 10));
+    fn draw(&self, ctx: &mut DrawContext) {
+        ctx.draw_rect(Position::zero().with_size(&self.size()));
     }
     
-    fn size(&self) -> (u32,u32) {
-        return (30, 10);
+    fn size(&self) -> Size {
+        return Size::new(50, 30)
     }
 }

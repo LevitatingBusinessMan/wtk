@@ -1,5 +1,7 @@
+use crate::prelude::*;
 use crate::{event::Event, widgets::SharedWidget};
 use crate::Backend;
+
 
 pub struct App<B> where B: Backend {
     widgets: Vec<SharedWidget>,
@@ -34,8 +36,20 @@ impl<B> App<B> where B: Backend {
         while !self.quit {
             if let Some(e) = self.backend.poll_event() {
                 self.process_event(&e);
+                self.draw();
             }
         }
+    }
+    fn draw(&mut self) {
+        let backend = self.backend.draw_backend();
+        backend.clear();
+        for widget in &self.widgets {
+            let widget = widget.borrow_mut();
+            let mut ctx = DrawContext::new(&*widget, Position::zero());
+            widget.draw(&mut ctx);
+            ctx.run_backend(backend);
+        }
+        backend.present();
     }
 }
 

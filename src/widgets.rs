@@ -9,9 +9,9 @@ use crate::prelude::*;
 
 /// Base widget trait
 pub trait Widget {
-    fn draw<B>(&self, ctx: &mut DrawContext<B>) where B: DrawBackend;
+    fn draw(&self, ctx: &mut DrawContext);
     fn process_event(&mut self, event: &Event);
-    fn size(&self) -> (u32,u32);
+    fn size(&self) -> Size;
 }
 
 pub type SharedWidget = Rc<RefCell<dyn Widget>>;
