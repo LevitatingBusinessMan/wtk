@@ -45,7 +45,7 @@ impl<B> App<B> where B: Backend {
         backend.clear();
         for widget in &self.widgets {
             let widget = widget.borrow_mut();
-            let mut ctx = DrawContext::new(&*widget, Position::zero());
+            let mut ctx = DrawContext::new(&*widget, Point::zero());
             widget.draw(&mut ctx);
             ctx.run_backend(backend);
         }

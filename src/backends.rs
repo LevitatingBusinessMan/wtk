@@ -22,4 +22,5 @@ pub trait DrawBackend {
     fn clear(&mut self);
     /// Present drawings
     fn present(&mut self);
+    fn draw_text(&mut self, text: &str, pos: Point);
 }

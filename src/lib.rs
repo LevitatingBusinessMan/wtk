@@ -6,4 +6,5 @@ pub mod prelude;
 pub mod backends;
 pub mod draw;
 pub mod pixels;
+pub mod font;
 mod ffi;

@@ -11,7 +11,8 @@ use crate::prelude::*;
 #[derive(Debug)]
 enum DrawCommand {
     Rect(Rect),
-    Color(Color)
+    Color(Color),
+    Text(String, Point)
 }
 
 /**
@@ -30,6 +31,9 @@ impl DrawContext {
     pub fn draw_rect(&mut self, rect: Rect) {
         self.commands.push(DrawCommand::Rect(rect));
     }
+    pub fn draw_text<T: Into<String>>(&mut self, text: T, pos: Point) {
+        self.commands.push(DrawCommand::Text(text.into(), pos));
+    }
     /// Get the draw bounds of this context.
     pub fn bounds(&self) -> &Rect {
         &self.bounds
@@ -40,12 +44,13 @@ impl DrawContext {
             match command {
                 DrawCommand::Rect(rect) => backend.draw_rect(rect),
                 DrawCommand::Color(color) => backend.set_color(*color),
+                DrawCommand::Text(text, point) => backend.draw_text(text, *point)
             }
         }
     }
-    pub(crate) fn new(widget: &dyn Widget, pos: Position) -> Self {
+    pub(crate) fn new(widget: &dyn Widget, pos: Point) -> Self {
         Self {
-            bounds: pos.with_size(&widget.size()),
+            bounds: pos.with_size(widget.size()),
             commands: vec![
                 DrawCommand::Color(Color::RGB(0, 0, 0))
             ],

@@ -25,7 +25,8 @@ impl Widget for Button {
     }
     
     fn draw(&self, ctx: &mut DrawContext) {
-        ctx.draw_rect(Position::zero().with_size(&self.size()));
+        ctx.draw_rect(Point::zero().with_size(self.size()));
+        ctx.draw_text(&self.text, Point::zero());
     }
     
     fn size(&self) -> Size {

@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Rect {
     pub x: u32,
     pub y: u32,
@@ -17,31 +17,43 @@ impl Rect {
     }
 }
 
-
-pub struct Position {
+#[derive(Clone, Copy, Debug)]
+pub struct Point {
     pub x: u32,
     pub y: u32,
 }
 
-impl Position {
-    pub fn with_size(&self, size: &Size) -> Rect {
+impl Point {
+    pub fn with_size(&self, size: Size) -> Rect {
         Rect::new(self.x, self.y, size.width, size.height)
     }
     pub fn zero() -> Self {
-        Position::new(0,0)
+        Point::new(0,0)
     }
     pub fn new(x: u32, y: u32) -> Self {
-        Position { x, y }
+        Point { x, y }
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Size {
     pub width: u32,
     pub height: u32,
 }
 
+impl std::ops::Mul<Size> for f64 {
+    type Output = Size;
+
+    fn mul(self, rhs: Size) -> Self::Output {
+        Size {
+            width: ((rhs.width as f64) * self).round() as u32,
+            height: ((rhs.height as f64) * self).round() as u32
+        }
+    }
+}
+
 impl Size {
-    pub fn new(width: u32, height: u32) -> Self {
+    pub const fn new(width: u32, height: u32) -> Self {
         Size {
             width,
             height

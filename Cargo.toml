@@ -11,4 +11,4 @@ path = "src/lib.rs"
 default = ["sdl2"]
 
 [dependencies]
-sdl2 = { version = "0", features = ["gfx", "ttf"], optional = true }
+sdl2 = { version = "0", features = ["gfx", "image"], optional = true }

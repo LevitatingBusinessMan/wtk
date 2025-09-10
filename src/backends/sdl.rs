@@ -1,5 +1,5 @@
-use sdl2::{self, mouse::MouseButton, render::Canvas, sys::SDL_Event, video::{self, Window}, EventPump, Sdl, VideoSubsystem};
-use crate::prelude::*;
+use sdl2::{self, image::LoadTexture, mouse::MouseButton, render::{Canvas, Texture, TextureCreator}, sys::SDL_Event, video::{self, Window, WindowContext}, EventPump, Sdl, VideoSubsystem};
+use crate::{font::{self, source_char}, prelude::*};
 
 use super::DrawBackend;
 
@@ -8,7 +8,6 @@ pub struct SDLBackend {
     video: VideoSubsystem,
     canvas: Canvas<sdl2::video::Window>,
     event_pump: EventPump,
-    ttf: sdl2::ttf::Sdl2TtfContext,
 }
 
 impl Backend for SDLBackend {
@@ -21,7 +20,6 @@ impl Backend for SDLBackend {
             .unwrap();
         let mut canvas = win.into_canvas().build().unwrap();
         let event_pump = ctx.event_pump().unwrap();
-        let ttf = sdl2::ttf::init().unwrap();
 
         DrawBackend::clear(&mut canvas);
         canvas.present();
@@ -31,7 +29,6 @@ impl Backend for SDLBackend {
             video,
             canvas,
             event_pump,
-            ttf,
         }
     }
     fn poll_event(&mut self) -> Option<Event> {
@@ -100,6 +97,18 @@ impl DrawBackend for Canvas<sdl2::video::Window> {
     }
     fn set_color(&mut self, color: Color) {
         self.set_draw_color(color);
+    }
+    fn draw_text(&mut self, text: &str, mut pos: Point) {
+        let texture_creator = self.texture_creator();
+        let texture = texture_creator.load_texture_bytes(crate::font::MONOGRAM_PNG).unwrap();
+        for c in text.chars() {
+            self.copy(
+                &texture,
+                Some((&crate::font::source_char(c)).into()),
+                Some((&pos.with_size(2.0 * font::GLYPH_SIZE)).into())
+            ).unwrap();
+            pos.x += crate::font::GLYPH_SIZE.width * 2;
+        }
     }
 }
 
