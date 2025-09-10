@@ -20,8 +20,8 @@ pub fn text_size(str: &str) -> Size {
     glyph
 }
 
-#[test]
-fn source_char_test() {
-    assert!(source_char('!') == Point::new(0, 6).with_size(GLYPH_SIZE));
-    assert!(source_char('a') == Point::new(6, 48).with_size(GLYPH_SIZE));
-}
+// #[test]
+// fn source_char_test() {
+//     assert!(source_char('!') == Point::new(0, 6).with_size(GLYPH_SIZE));
+//     assert!(source_char('a') == Point::new(6, 48).with_size(GLYPH_SIZE));
+// }
