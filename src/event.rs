@@ -10,6 +10,7 @@ pub enum Event {
         pos: Point,
     },
     Resized(Size),
+    MouseMove(Point),
 }
 
 pub mod input {

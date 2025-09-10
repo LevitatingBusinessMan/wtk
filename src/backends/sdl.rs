@@ -52,6 +52,9 @@ impl Into<Event> for sdl2::event::Event {
             Self::Window { timestamp, window_id, win_event: WindowEvent::SizeChanged(w, h) } => {
                 Event::Resized(Size::new(w as u32, h as u32))
             },
+            Self::MouseMotion { timestamp, window_id, which, mousestate, x, y, xrel, yrel } => {
+                Event::MouseMove(Point::new(x as u32, y as u32))
+            },
             // Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {
             //     Event::Resized(Size::new(w as u32, h as u32))
             // },

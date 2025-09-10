@@ -5,11 +5,16 @@ use crate::{font, prelude::*};
 pub struct Button {
     text: String,
     cb: Option<Rc<dyn Fn(&mut Button)>>,
+    bounds: Rect,
 }
 
 impl Button {
     pub fn new<F>(text: impl Into<String>, cb: F) -> Button where F: Fn(&mut Button) + 'static{
-        Button { text: text.into(), cb: Some(Rc::new(cb)) }
+        Button {
+            text: text.into(),
+            cb: Some(Rc::new(cb)),
+            bounds: Rect::zero(),
+        }
     }
     pub fn on_click<F>(&mut self, cb: F) -> &mut Self where F: Fn(&mut Button) + 'static {
         self.cb = Some(Rc::new(cb));
@@ -26,10 +31,13 @@ impl Widget for Button {
     fn process_event(&mut self, e: &Event) -> bool {
         match e {
             Event::MouseButtonDown { button: _, clicks: _, pos } => {
-                if let Some(cb) = &self.cb {
-                    let cb = cb.clone();
-                    cb(self);
-                    return true;
+                println!("{:?}", self.bounds);
+                if pos.is_in(self.bounds) {
+                    if let Some(cb) = &self.cb {
+                        let cb = cb.clone();
+                        cb(self);
+                        return true;
+                    }
                 }
             },
             _ => {}
@@ -42,6 +50,10 @@ impl Widget for Button {
         let padding = 6;
         ctx.draw_text(&self.text, Point::new(padding, padding));
         ctx.draw_rect(Point::zero().with_size(text_size + padding * 2));
+    }
+    
+    fn set_bounds(&mut self, bounds: Rect) {
+        self.bounds = bounds;
     }
 
     // fn as_any_mut(&mut self) -> &mut dyn std::any::Any { self }

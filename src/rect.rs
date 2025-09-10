@@ -24,6 +24,9 @@ impl Rect {
             height: self.height + self.y,
         }
     }
+    pub fn zero() -> Self {
+        Self::new(0, 0, 0, 0)
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -33,7 +36,7 @@ pub struct Point {
 }
 
 impl Point {
-    pub fn with_size(&self, size: Size) -> Rect {
+    pub fn with_size(self, size: Size) -> Rect {
         Rect::new(self.x, self.y, size.width, size.height)
     }
     pub fn zero() -> Self {
@@ -41,6 +44,9 @@ impl Point {
     }
     pub fn new(x: u32, y: u32) -> Self {
         Point { x, y }
+    }
+    pub fn is_in(self, rect: Rect) -> bool {
+        return self.x >= rect.x && self.x < rect.total().width && self.y >= rect.y && self.y < rect.total().height
     }
 }
 

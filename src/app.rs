@@ -55,10 +55,11 @@ impl<B> App<B> where B: Backend {
         let mut cursor = Point::new(padding, padding);
         let mut window_size = Size::new(0, 0);
         for widget in &self.widgets {
-            let widget = widget.borrow_mut();
+            let mut widget = widget.borrow_mut();
             let mut ctx = DrawContext::new(&*widget, cursor);
             widget.draw(&mut ctx);
             let bounds = ctx.bounds();
+            widget.set_bounds(bounds);
             cursor.y += bounds.height + padding; // move down
             window_size.height = cmp::max(window_size.height, bounds.total().height);
             window_size.width = cmp::max(window_size.width, bounds.total().width);
