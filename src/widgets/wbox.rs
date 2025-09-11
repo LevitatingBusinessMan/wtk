@@ -45,7 +45,7 @@ impl WBox {
 
 impl Widget for WBox {
     fn draw(&self, ctx: &mut DrawContext) {
-        draw::draw_widgets(ctx, Orientation::Horizontal, self.padding, &self.widgets, Some(Point::new(self.margin, self.margin)));
+        draw::draw_widgets(ctx, self.orientation, self.padding, &self.widgets, Some(Point::new(self.margin, self.margin)));
         if self.margin > 0 {
             let bounds = ctx.bounds();
             ctx.claim(Rect::new(0, 0, bounds.width + self.margin, bounds.height + self.margin));

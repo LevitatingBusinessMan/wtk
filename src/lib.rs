@@ -7,4 +7,6 @@ pub mod backends;
 pub mod draw;
 pub mod pixels;
 pub mod font;
+#[macro_use]
+pub mod macros;
 mod ffi;

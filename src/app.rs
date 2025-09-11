@@ -12,7 +12,7 @@ pub struct App<B> where B: Backend {
 }
 
 impl<B> App<B> where B: Backend {
-    pub fn new(title: &'static str) -> Self {
+    pub fn new(title: &str) -> Self {
         App { 
             widgets: vec![],
             backend: B::init(title),

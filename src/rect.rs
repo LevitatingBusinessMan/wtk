@@ -139,6 +139,7 @@ impl Size {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum Orientation {
     Horizontal, Vertical
 }

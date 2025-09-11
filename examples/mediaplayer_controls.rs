@@ -1,21 +1,23 @@
 extern crate wtk;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::OnceLock;
 use mpris;
 
 use wtk::prelude::*;
+use wtk::enclose;
 
 struct MediaPlayerButtons {
     inner_box: Rc<RefCell<WBox>>,
 }
 
 impl MediaPlayerButtons {
-    pub fn new() -> Self {
-        let left = Button::new("<", |_| mediaplayer_controls(MediaPlayerAction::Previous));
-        let right: Button = Button::new("||", |_| mediaplayer_controls(MediaPlayerAction::Pause));
-        let middle = Button::new(">", |_| mediaplayer_controls(MediaPlayerAction::Next));
+    pub fn new(player: Rc<mpris::Player>) -> Self {
+        let left = Button::new("<", enclose!((player) move |_| mediaplayer_controls(player.clone(), MediaPlayerAction::Previous)));
+        let right: Button = Button::new("||", enclose!{(player) move |_| mediaplayer_controls(player.clone(), MediaPlayerAction::PlayPause)});
+        let middle = Button::new(">", enclose!{(player) move |_| mediaplayer_controls(player.clone(), MediaPlayerAction::Next)});
         
-        let mut inner_box = WBox::new(Orientation::Vertical);
+        let mut inner_box = WBox::new(Orientation::Horizontal);
         inner_box.set_padding(4);
         inner_box.set_margin(5);
         inner_box.set_border(true);
@@ -36,26 +38,45 @@ impl Widget for MediaPlayerButtons {
     }
 }
 
-fn main() {
-    let mut app = App::<SDLBackend>::new("WTK button example");
-    app.add_widget(MediaPlayerButtons::new().shared());
+fn main() -> Result<(), String>{
+    let player = find_player()?;
+    let mut app = App::<SDLBackend>::new(&format!("{} controls", player.bus_name_player_name_part()));
+    app.add_widget(MediaPlayerButtons::new(Rc::new(player)).shared());
     app.run();
+    Ok(())
 }
 
 
 #[derive(Debug)]
 enum MediaPlayerAction {
     Previous,
-    Pause,
+    PlayPause,
     Next,
 }
 
-fn mediaplayer_controls(action: MediaPlayerAction) {
-    eprintln!("{:?}", action);
-    return;
-    match action {
-        MediaPlayerAction::Previous => todo!(),
-        MediaPlayerAction::Pause => todo!(),
-        MediaPlayerAction::Next => todo!(),
+fn mediaplayer_controls(player: Rc<mpris::Player>, action: MediaPlayerAction) {
+    println!("{action:?}");
+    let _ = match action {
+        MediaPlayerAction::Previous => player.previous(),
+        MediaPlayerAction::PlayPause => player.play_pause(),
+        MediaPlayerAction::Next => player.next(),
+    }.inspect_err(|e| eprintln!("D-Bus error: {e}"));
+}
+
+fn find_player() -> Result<mpris::Player, String> {
+    let player_finder = mpris::PlayerFinder::new()
+        .map_err(|e| e.to_string())?;
+
+    match player_finder.find_active() {
+        Ok(player) => Ok(player),
+        Err(e) => match e {
+            mpris::FindingError::NoPlayerFound => {
+                match player_finder.find_first() {
+                    Ok(p) => Ok(p),
+                    Err(e) => Err(e.to_string()),
+                }
+            },
+            mpris::FindingError::DBusError(e) => Err(e.to_string()),
+        },
     }
 }
