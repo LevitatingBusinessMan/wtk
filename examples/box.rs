@@ -12,6 +12,8 @@ fn main() {
     let mut box_ = WBox::new(Orientation::Horizontal);
     box_.add_widget(button1);
     box_.add_widget(button2);
+    box_.set_margin(5);
+    box_.set_border(true);
     app.add_widget(box_.shared());
     app.run();
 }

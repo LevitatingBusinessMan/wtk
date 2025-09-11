@@ -6,6 +6,7 @@ pub struct WBox {
     widgets: Vec<SharedWidget>,
     orientation: Orientation,
     padding: u32,
+    margin: u32,
     border: bool,
 }
 
@@ -15,7 +16,8 @@ impl WBox {
             widgets: vec![],
             orientation: orientation,
             border: false,
-            padding: 5,
+            padding: draw::DEFAULT_PADDING,
+            margin: 0,
         }
     }
     pub fn add_widget(&mut self, widget: SharedWidget) -> &mut Self {
@@ -34,11 +36,19 @@ impl WBox {
         self.padding = padding;
         self
     }
+    pub fn set_margin(&mut self, margin: u32) -> &mut Self {
+        self.margin = margin;
+        self
+    }
 }
 
 impl Widget for WBox {
     fn draw(&self, ctx: &mut DrawContext) {
-        draw::draw_widgets(ctx, Orientation::Horizontal, self.padding, &self.widgets);
+        draw::draw_widgets(ctx, Orientation::Horizontal, self.padding, &self.widgets, Some(Point::new(self.margin, self.margin)));
+        if self.margin > 0 {
+            let bounds = ctx.bounds();
+            ctx.claim(Rect::new(0, 0, bounds.width + self.margin, bounds.height + self.margin));
+        }
         if self.border {
             let bounds = ctx.bounds();
             ctx.draw_rect(Rect::new(0, 0, bounds.width, bounds.height));

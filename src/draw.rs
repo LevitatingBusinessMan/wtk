@@ -16,7 +16,8 @@ pub const DEFAULT_PADDING: u32 = 5;
 enum DrawCommand {
     Rect(Rect),
     Color(Color),
-    Text(Rc<String>, Point)
+    Text(Rc<String>, Point),
+    Claim(Rect),
 }
 
 /**
@@ -48,7 +49,8 @@ impl DrawContext {
             match command {
                 DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point + *rect),
                 DrawCommand::Color(color) => backend.set_color(*color),
-                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point + *point)
+                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point + *point),
+                DrawCommand::Claim(_) => {},
             }
         }
     }
@@ -63,19 +65,24 @@ impl DrawContext {
     /// The bounds of all the combined draw commands,
     /// used to generate the next position in the layout.
     pub(crate) fn bounds(&self) -> Rect {
+        // the maximum drawpoint reached from the zero point
         let mut max = Size::new(0, 0);
         for command in &self.commands {
             match command {
                 DrawCommand::Rect(rect) => {
-                    max.width = cmp::max(max.width, rect.width + rect.x);
-                    max.height = cmp::max(max.height, rect.height + rect.y);
+                    max.width = cmp::max(max.width, rect.total().width);
+                    max.height = cmp::max(max.height, rect.total().height);
                 },
                 DrawCommand::Color(color) => {},
                 DrawCommand::Text(text, point) => {
                     let rect = point.with_size(font::text_size(text));
-                    max.width = cmp::max(max.width, rect.width + rect.x);
-                    max.height = cmp::max(max.height, rect.height + rect.y);
+                    max.width = cmp::max(max.width, rect.total().width);
+                    max.height = cmp::max(max.height, rect.total().height);
                 },
+                DrawCommand::Claim(rect) => {
+                    max.width = cmp::max(max.width, rect.total().width);
+                    max.height = cmp::max(max.height, rect.total().height);
+                }
             }
         }
         self.zero_point.with_size(max)
@@ -94,12 +101,17 @@ impl DrawContext {
             });
         }
     }
+    /// empty drawing operating for increasing the claimed bounds
+    pub fn claim(&mut self, rect: Rect) {
+        self.commands.push(DrawCommand::Claim(rect));
+    } 
 }
 
 /// For drawing many widgets using a drawcontext, for use by the app internally and by container like widgets.
 /// Child widgets each get a DrawContext of which the commands are merged with the parents.
-pub fn draw_widgets(ctx: &mut DrawContext, orientation: Orientation, padding: u32, widgets: &[SharedWidget]) {
-    let mut cursor = ctx.zero_point(); // where we start drawing the widget from
+pub fn draw_widgets(ctx: &mut DrawContext, orientation: Orientation, padding: u32, widgets: &[SharedWidget], at: Option<Point>) {
+    // the cursor is where we start drawing the next widget
+    let mut cursor = at.map_or(ctx.zero_point(), |at| at + ctx.zero_point());
     for widget in widgets {
         let mut child_ctx = DrawContext::new(cursor);
         widget.borrow().draw(&mut child_ctx);
@@ -112,4 +124,3 @@ pub fn draw_widgets(ctx: &mut DrawContext, orientation: Orientation, padding: u3
         ctx.merge(child_ctx);
     }
 }
-
