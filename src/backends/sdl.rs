@@ -58,6 +58,7 @@ impl Into<Event> for sdl2::event::Event {
             // Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {
             //     Event::Resized(Size::new(w as u32, h as u32))
             // },
+            Self::Unknown { timestamp: _, type_: _ } => { Event::Unsupported },
             _ => {
                 eprintln!("Unknown SDL event: {self:?}");
                 Event::Unsupported

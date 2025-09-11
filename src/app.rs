@@ -29,6 +29,7 @@ impl<B> App<B> where B: Backend {
                 self.quit = true;
                 return false;
             },
+            Event::Unsupported => return false,
             Event::Resized(_) => { draw = true },
             _ => {},
         }

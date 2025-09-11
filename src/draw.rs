@@ -41,7 +41,7 @@ impl DrawContext {
         self.offset
     }
     pub(crate) fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
-        eprintln!("{:?}", self.commands);
+        eprintln!("DrawCommands: {:?}", self.commands);
         for command in &self.commands {
             match command {
                 DrawCommand::Rect(rect) => backend.draw_rect(self.offset + *rect),
