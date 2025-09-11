@@ -6,15 +6,15 @@
 //! So the process is this, the widget interacts with [DrawContext] to create a list of [DrawCommand]s.
 //! These [DrawCommand] are then converted by [DrawContext::run_backend] to [DrawBackend] methods.
 
-use std::cmp;
+use std::{cmp, rc::Rc};
 
-use crate::{font, prelude::*};
+use crate::{font, prelude::*, rect::Orientation, widgets::SharedWidget};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum DrawCommand {
     Rect(Rect),
     Color(Color),
-    Text(String, Point)
+    Text(Rc<String>, Point)
 }
 
 /**
@@ -24,35 +24,35 @@ enum DrawCommand {
  * actual rendering backend.
 */
 pub struct DrawContext {
-    offset: Point,
+    zero_point: Point,
     commands: Vec<DrawCommand>,
+    //hover: bool,
 }
-
 
 impl DrawContext {
     pub fn draw_rect(&mut self, rect: Rect) {
         self.commands.push(DrawCommand::Rect(rect));
     }
     pub fn draw_text<T: Into<String>>(&mut self, text: T, pos: Point) {
-        self.commands.push(DrawCommand::Text(text.into(), pos));
+        self.commands.push(DrawCommand::Text(Rc::new(text.into()), pos));
     }
     /// Get the draw offset
-    pub fn offset(&self) -> Point {
-        self.offset
+    pub fn zero_point(&self) -> Point {
+        self.zero_point
     }
     pub(crate) fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
         eprintln!("DrawCommands: {:?}", self.commands);
         for command in &self.commands {
             match command {
-                DrawCommand::Rect(rect) => backend.draw_rect(self.offset + *rect),
+                DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point + *rect),
                 DrawCommand::Color(color) => backend.set_color(*color),
-                DrawCommand::Text(text, point) => backend.draw_text(text, self.offset + *point)
+                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point + *point)
             }
         }
     }
-    pub(crate) fn new(widget: &dyn Widget, pos: Point) -> Self {
+    pub(crate) fn new(pos: Point) -> Self {
         Self {
-            offset: pos,
+            zero_point: pos,
             commands: vec![
                 DrawCommand::Color(Color::RGB(0, 0, 0))
             ],
@@ -76,6 +76,38 @@ impl DrawContext {
                 },
             }
         }
-        self.offset.with_size(max)
+        self.zero_point.with_size(max)
+    }
+    /// Merge the commands of another [DrawContext] into this one.
+    fn merge(&mut self, ctx: DrawContext) {
+        if ctx.zero_point() < self.zero_point() {
+            panic!()
+        }
+        let diff = ctx.zero_point() - self.zero_point();
+        for command in ctx.commands {
+            self.commands.push(match command {
+                DrawCommand::Rect(rect) => DrawCommand::Rect(diff + rect),
+                DrawCommand::Text(str, point) => DrawCommand::Text(str.clone(), diff + point),
+                _ => command.clone()
+            });
+        }
     }
 }
+
+/// For drawing many widgets using a drawcontext, for use by the app internally and by container like widgets.
+/// Child widgets each get a DrawContext of which the commands are merged with the parents.
+pub fn draw_widgets(ctx: &mut DrawContext, orientation: Orientation, padding: u32, widgets: &[SharedWidget]) {
+    let mut cursor = ctx.zero_point(); // where we start drawing the widget from
+    for widget in widgets {
+        let mut child_ctx = DrawContext::new(cursor);
+        widget.borrow().draw(&mut child_ctx);
+        let bounds = child_ctx.bounds();
+        widget.borrow_mut().set_bounds(bounds);
+        match orientation {
+            Orientation::Horizontal => cursor.x += bounds.width + padding,
+            Orientation::Vertical => cursor.y += bounds.height + padding,
+        }
+        ctx.merge(child_ctx);
+    }
+}
+

@@ -11,6 +11,7 @@ pub use crate::rect::Size;
 pub use crate::rect::Point;
 pub use crate::pixels::Color;
 pub use crate::widgets::Label;
+pub use crate::rect::Orientation;
 
 #[cfg(feature = "sdl2")]
 pub use crate::backends::SDLBackend;

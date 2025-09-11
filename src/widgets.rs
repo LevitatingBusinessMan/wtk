@@ -2,6 +2,8 @@ pub mod button;
 pub use button::Button;
 pub mod label;
 pub use label::Label;
+pub mod hbox;
+pub use hbox::HBox;
 
 use std::cell::RefCell;
 use std::rc::Rc;

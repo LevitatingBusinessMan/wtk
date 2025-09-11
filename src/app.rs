@@ -1,6 +1,6 @@
 use std::cmp;
 
-use crate::prelude::*;
+use crate::{draw, prelude::*};
 use crate::{event::Event, widgets::SharedWidget};
 use crate::backends::Backend;
 
@@ -29,7 +29,6 @@ impl<B> App<B> where B: Backend {
                 self.quit = true;
                 return false;
             },
-            Event::Unsupported => return false,
             Event::Resized(_) => { draw = true },
             _ => {},
         }
@@ -49,25 +48,35 @@ impl<B> App<B> where B: Backend {
             }
         }
     }
+    // fn draw(&mut self) {
+    //     let backend = self.backend.draw_backend();
+    //     backend.clear();
+    //     let padding = 5;
+    //     let mut cursor = Point::new(padding, padding);
+    //     let mut window_size = Size::new(0, 0);
+    //     for widget in &self.widgets {
+    //         let mut widget = widget.borrow_mut();
+    //         let mut ctx = DrawContext::new(cursor);
+    //         widget.draw(&mut ctx);
+    //         let bounds = ctx.bounds();
+    //         widget.set_bounds(bounds);
+    //         cursor.y += bounds.height + padding; // move down
+    //         window_size.height = cmp::max(window_size.height, bounds.total().height);
+    //         window_size.width = cmp::max(window_size.width, bounds.total().width);
+    //         ctx.run_backend(backend);
+    //     }
+    //     backend.present();
+    //     self.backend.resize(window_size + padding);
+    // }
     fn draw(&mut self) {
         let backend = self.backend.draw_backend();
         backend.clear();
         let padding = 5;
-        let mut cursor = Point::new(padding, padding);
-        let mut window_size = Size::new(0, 0);
-        for widget in &self.widgets {
-            let mut widget = widget.borrow_mut();
-            let mut ctx = DrawContext::new(&*widget, cursor);
-            widget.draw(&mut ctx);
-            let bounds = ctx.bounds();
-            widget.set_bounds(bounds);
-            cursor.y += bounds.height + padding; // move down
-            window_size.height = cmp::max(window_size.height, bounds.total().height);
-            window_size.width = cmp::max(window_size.width, bounds.total().width);
-            ctx.run_backend(backend);
-        }
+        let mut ctx = DrawContext::new(Point::new(padding, padding));
+        draw::draw_widgets(&mut ctx, Orientation::Horizontal, 5, &self.widgets);
+        ctx.run_backend(backend);
         backend.present();
-        self.backend.resize(window_size + padding);
+        self.backend.resize(ctx.bounds().size() + padding * 2);
     }
 }
 

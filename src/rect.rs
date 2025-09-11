@@ -1,4 +1,5 @@
 use std::ops;
+use std::cmp;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Rect {
@@ -27,9 +28,12 @@ impl Rect {
     pub fn zero() -> Self {
         Self::new(0, 0, 0, 0)
     }
+    pub fn size(self) -> Size {
+        Size::new(self.width, self.height)
+    }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Point {
     pub x: u32,
     pub y: u32,
@@ -74,6 +78,28 @@ impl ops::Add<Point> for Point {
     }
 }
 
+impl ops::Sub<Point> for Point {
+    type Output = Point;
+    
+    fn sub(self, rhs: Point) -> Self::Output {
+        Point {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl cmp::PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        let xord = self.x.cmp(&other.x);
+        let yord = self.y.cmp(&other.y);
+        if xord == yord {
+            return Some(xord)
+        } else {
+            return None
+        }
+    }
+}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Size {
@@ -113,3 +139,6 @@ impl Size {
     }
 }
 
+pub enum Orientation {
+    Horizontal, Vertical
+}
