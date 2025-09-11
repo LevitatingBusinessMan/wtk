@@ -1,3 +1,5 @@
+//! Home of most drawing functions.
+//! 
 //! The drawing process is a bit convoluted.
 //! The widgets require dyn compatibility so they can be grouped heterogenously.
 //! This means that they cannot interact with generics through their [Widget] trait methods.
