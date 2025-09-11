@@ -10,6 +10,8 @@ use std::{cmp, rc::Rc};
 
 use crate::{font, prelude::*, rect::Orientation, widgets::SharedWidget};
 
+pub const DEFAULT_PADDING: u32 = 5;
+
 #[derive(Debug, Clone)]
 enum DrawCommand {
     Rect(Rect),

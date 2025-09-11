@@ -23,7 +23,9 @@ fn main() {
         labelrc.borrow_mut().set_text(format!("Counter: {count}"));
     }).shared();
     app.add_widget(label);
-    app.add_widget(button1);
-    app.add_widget(button2);
+    let mut box_ = WBox::new(Orientation::Horizontal);
+    box_.add_widget(button1.clone());
+    box_.add_widget(button2.clone());
+    app.add_widget(box_.shared());
     app.run();
 }

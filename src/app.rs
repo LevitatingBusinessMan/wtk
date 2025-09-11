@@ -71,9 +71,9 @@ impl<B> App<B> where B: Backend {
     fn draw(&mut self) {
         let backend = self.backend.draw_backend();
         backend.clear();
-        let padding = 5;
+        let padding = draw::DEFAULT_PADDING;
         let mut ctx = DrawContext::new(Point::new(padding, padding));
-        draw::draw_widgets(&mut ctx, Orientation::Horizontal, 5, &self.widgets);
+        draw::draw_widgets(&mut ctx, Orientation::Vertical, 5, &self.widgets);
         ctx.run_backend(backend);
         backend.present();
         self.backend.resize(ctx.bounds().size() + padding * 2);

@@ -31,7 +31,6 @@ impl Widget for Button {
     fn process_event(&mut self, e: &Event) -> bool {
         match e {
             Event::MouseButtonDown { button: _, clicks: _, pos } => {
-                println!("{:?}", self.bounds);
                 if pos.is_in(self.bounds) {
                     if let Some(cb) = &self.cb {
                         let cb = cb.clone();
