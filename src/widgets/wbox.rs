@@ -2,6 +2,7 @@ use crate::prelude::*;
 use super::SharedWidget;
 use crate::draw;
 
+/// Widget Box for grouping widgets
 pub struct WBox {
     widgets: Vec<SharedWidget>,
     orientation: Orientation,

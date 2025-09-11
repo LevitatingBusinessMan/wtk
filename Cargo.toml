@@ -18,3 +18,6 @@ default = ["sdl2"]
 [dependencies]
 libc = "0.2.175"
 sdl2 = { version = "0", features = ["gfx", "image"], optional = true }
+
+[dev-dependencies]
+mpris = "2.0.1"
