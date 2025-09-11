@@ -99,6 +99,7 @@ impl DrawContext {
             self.commands.push(match command {
                 DrawCommand::Rect(rect) => DrawCommand::Rect(diff + rect),
                 DrawCommand::Text(str, point) => DrawCommand::Text(str.clone(), diff + point),
+                DrawCommand::Claim(rect) => DrawCommand::Claim(diff + rect),
                 _ => command.clone()
             });
         }

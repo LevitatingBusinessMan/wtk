@@ -9,6 +9,11 @@ pub enum Event {
         clicks: u8,
         pos: Point,
     },
+    MouseButtonUp{
+        button: input::MouseButton,
+        clicks: u8,
+        pos: Point,
+    },
     Resized(Size),
     MouseMove(Point),
 }

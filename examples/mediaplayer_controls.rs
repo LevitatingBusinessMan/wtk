@@ -52,6 +52,7 @@ enum MediaPlayerAction {
 
 fn mediaplayer_controls(action: MediaPlayerAction) {
     eprintln!("{:?}", action);
+    return;
     match action {
         MediaPlayerAction::Previous => todo!(),
         MediaPlayerAction::Pause => todo!(),

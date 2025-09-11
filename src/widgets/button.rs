@@ -1,11 +1,12 @@
 use std::rc::Rc;
 
-use crate::{font, prelude::*};
+use crate::prelude::*;
 
 pub struct Button {
     text: String,
     cb: Option<Rc<dyn Fn(&mut Button)>>,
     bounds: Rect,
+    pressed: bool,
 }
 
 impl Button {
@@ -14,6 +15,7 @@ impl Button {
             text: text.into(),
             cb: Some(Rc::new(cb)),
             bounds: Rect::zero(),
+            pressed: false,
         }
     }
     pub fn on_click<F>(&mut self, cb: F) -> &mut Self where F: Fn(&mut Button) + 'static {
@@ -30,13 +32,20 @@ impl Widget for Button {
 
     fn process_event(&mut self, e: &Event) -> bool {
         match e {
-            Event::MouseButtonDown { button: _, clicks: _, pos } => {
-                if pos.is_in(self.bounds) {
+            Event::MouseButtonDown { button: _b, clicks: _, pos } => {
+                if pos.is_in(self.bounds) && matches!(MouseButton::Left, _b) {
+                    self.pressed = true;
                     if let Some(cb) = &self.cb {
                         let cb = cb.clone();
                         cb(self);
                         return true;
                     }
+                }
+            },
+            Event::MouseButtonUp { button: _b, clicks: _, pos } => {
+                if matches!(MouseButton::Left, _b) {
+                    self.pressed = false;
+                    return true;
                 }
             },
             _ => {}
@@ -46,9 +55,18 @@ impl Widget for Button {
     
     fn draw(&self, ctx: &mut DrawContext) {
         let text_size = font::text_size(&self.text);
+
         let padding = 6;
         ctx.draw_text(&self.text, Point::new(padding, padding));
         ctx.draw_rect(Point::zero().with_size(text_size + padding * 2));
+
+        if !self.pressed {
+            //shadow
+            ctx.draw_rect(Point::zero().with_size(text_size + padding * 2 + 1));
+            ctx.draw_rect(Point::zero().with_size(text_size + padding * 2 + 2));
+        } else {
+            ctx.claim(Point::zero().with_size(text_size + padding * 2 + 2));
+        }
     }
     
     fn set_bounds(&mut self, bounds: Rect) {
