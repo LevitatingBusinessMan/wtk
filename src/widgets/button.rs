@@ -32,7 +32,7 @@ impl Widget for Button {
 
     fn process_event(&mut self, e: &Event) -> bool {
         match e {
-            Event::MouseButtonDown { button: _b, clicks: _, pos } => {
+            Event::MouseButtonDown { button: _b, pos } => {
                 if pos.is_in(self.bounds) && matches!(MouseButton::Left, _b) {
                     self.pressed = true;
                     if let Some(cb) = &self.cb {
@@ -42,7 +42,7 @@ impl Widget for Button {
                     }
                 }
             },
-            Event::MouseButtonUp { button: _b, clicks: _, pos } => {
+            Event::MouseButtonUp { button: _b, pos } => {
                 if matches!(MouseButton::Left, _b) {
                     self.pressed = false;
                     return true;

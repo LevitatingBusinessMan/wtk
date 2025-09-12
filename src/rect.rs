@@ -130,6 +130,18 @@ impl std::ops::Add<u32> for Size {
     }
 }
 
+/// add to width and height
+impl std::ops::Sub<u32> for Size {    
+    type Output = Size;
+    
+    fn sub(self, rhs: u32) -> Self::Output {
+        Self {
+            width: self.width - rhs,
+            height: self.height - rhs,
+        }
+    }
+}
+
 impl Size {
     pub const fn new(width: u32, height: u32) -> Self {
         Size {

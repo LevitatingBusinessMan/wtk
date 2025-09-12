@@ -46,8 +46,8 @@ impl Into<Event> for sdl2::event::Event {
     fn into(self) -> Event {
         match self {
             Self::Quit{ timestamp: _ } => Event::Quit,
-            Self::MouseButtonDown{ timestamp: _, window_id: _, which: _, mouse_btn, clicks, x, y }  => {
-                Event::MouseButtonDown { button: mouse_btn.into(), clicks, pos: Point::new(x as u32, y as u32)}
+            Self::MouseButtonDown{ timestamp: _, window_id: _, which: _, mouse_btn, clicks: _, x, y }  => {
+                Event::MouseButtonDown { button: mouse_btn.into(), pos: Point::new(x as u32, y as u32)}
             },
             Self::Window { timestamp, window_id, win_event: WindowEvent::SizeChanged(w, h) } => {
                 Event::Resized(Size::new(w as u32, h as u32))
@@ -55,8 +55,11 @@ impl Into<Event> for sdl2::event::Event {
             Self::MouseMotion { timestamp, window_id, which, mousestate, x, y, xrel, yrel } => {
                 Event::MouseMove(Point::new(x as u32, y as u32))
             },
-            Self::MouseButtonUp { timestamp, window_id, which, mouse_btn, clicks, x, y } => {
-                Event::MouseButtonUp { button: mouse_btn.into(), clicks, pos: Point::new(x as u32, y as u32)}
+            Self::MouseButtonUp { timestamp, window_id, which, mouse_btn, clicks: _, x, y } => {
+                Event::MouseButtonUp { button: mouse_btn.into(), pos: Point::new(x as u32, y as u32)}
+            },
+            Self::TextInput { timestamp, window_id, text } => {
+                Event::TextInput(text)
             },
             // Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {
             //     Event::Resized(Size::new(w as u32, h as u32))

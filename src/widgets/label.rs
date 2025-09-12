@@ -16,6 +16,6 @@ impl Label {
 
 impl Widget for Label {
     fn draw(&self, ctx: &mut DrawContext) {
-        ctx.draw_text(&self.text, ctx.zero_point());
+        ctx.draw_text(&self.text, Point::zero());
     }
 }
