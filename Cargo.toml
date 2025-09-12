@@ -17,7 +17,7 @@ default = ["sdl2", "xrdb"]
 
 [dependencies]
 libc = "0.2.175"
-sdl2 = { version = "0", features = ["gfx", "image"], optional = true }
+sdl2 = { version = "0", features = ["image"], optional = true }
 xrdb = { version = "0.1.1", optional = true }
 
 [dev-dependencies]
