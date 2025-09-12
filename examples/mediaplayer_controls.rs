@@ -13,9 +13,9 @@ struct MediaPlayerButtons {
 
 impl MediaPlayerButtons {
     pub fn new(player: Rc<mpris::Player>) -> Self {
-        let left = Button::new("<", enclose!((player) move |_| mediaplayer_controls(player.clone(), MediaPlayerAction::Previous)));
-        let right: Button = Button::new("||", enclose!{(player) move |_| mediaplayer_controls(player.clone(), MediaPlayerAction::PlayPause)});
-        let middle = Button::new(">", enclose!{(player) move |_| mediaplayer_controls(player.clone(), MediaPlayerAction::Next)});
+        let left = Button::new("<", enclose!((player) move |_| mediaplayer_controls(&player, MediaPlayerAction::Previous)));
+        let right: Button = Button::new("||", enclose!{(player) move |_| mediaplayer_controls(&player, MediaPlayerAction::PlayPause)});
+        let middle = Button::new(">", enclose!{(player) move |_| mediaplayer_controls(&player, MediaPlayerAction::Next)});
         
         let mut inner_box = WBox::new(Orientation::Horizontal);
         inner_box.set_padding(4);
@@ -54,7 +54,7 @@ enum MediaPlayerAction {
     Next,
 }
 
-fn mediaplayer_controls(player: Rc<mpris::Player>, action: MediaPlayerAction) {
+fn mediaplayer_controls(player: &mpris::Player, action: MediaPlayerAction) {
     println!("{action:?}");
     let _ = match action {
         MediaPlayerAction::Previous => player.previous(),
