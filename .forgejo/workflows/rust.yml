@@ -1,0 +1,27 @@
+# see https://doc.rust-lang.org/cargo/guide/continuous-integration.html#github-actions
+name: Cargo Build & Test
+
+on:
+  push:
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build_and_test:
+    name: Rust Build & Test
+    runs-on: trixie
+    strategy:
+      matrix:
+        toolchain:
+          - nightly
+          - stable
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${{matrix.toolchain}} --target x86_64-unknown-linux-musl
+         echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+         apt-get update && apt install libsdl3-dev libsdl3-image-dev -y
+      - run: cargo +${{matrix.toolchain}} build
+      - run: cargo +${{matrix.toolchain}} test
