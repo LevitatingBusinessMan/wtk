@@ -2,7 +2,7 @@ extern crate wtk;
 use wtk::prelude::*;
 
 fn main() {
-    let mut app = App::<SDLBackend>::new("WTK button example");
+    let mut app = App::<SDLBackend>::new("WTK box example");
     let button1 = Button::new("clickme", |b| {
         b.set_text("clicked");
     }).shared();

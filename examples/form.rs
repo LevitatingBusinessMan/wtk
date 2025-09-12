@@ -4,7 +4,7 @@ use wtk::prelude::*;
 use wtk::widgets::Entry;
 
 fn main() {
-    let mut app = App::<SDLBackend>::new("WTK button example");
+    let mut app = App::<SDLBackend>::new("WTK form example");
     app.add_widget(Label::new("Name").shared());
     let name = Entry::new().shared();
     app.add_widget(name.clone());
