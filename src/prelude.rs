@@ -15,6 +15,7 @@ pub use crate::rect::Orientation;
 pub use crate::widgets::WBox;
 pub use crate::event::input::MouseButton;
 pub use crate::font;
+pub use crate::theme::Theme;
 
 #[cfg(feature = "sdl3")]
 pub use crate::backends::SDLBackend;

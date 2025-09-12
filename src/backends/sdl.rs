@@ -1,5 +1,5 @@
 use sdl3::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
-use crate::{font::{self}, prelude::*};
+use crate::{font::{self}, prelude::*, theme};
 
 use super::DrawBackend;
 
@@ -127,16 +127,20 @@ impl DrawBackend for Canvas<sdl3::video::Window> {
     fn draw_rect(&mut self, rect: Rect) {
         self.draw_rect(rect.into()).unwrap();
     }
+
     fn clear(&mut self) {
-        self.set_draw_color(Color::WHITE);
+        self.set_draw_color(theme::THEME.background);
         self.clear();
     }
+
     fn present(&mut self) {
         self.present();
     }
+
     fn set_color(&mut self, color: Color) {
         self.set_draw_color(color);
     }
+
     fn draw_text(&mut self, text: &str, mut pos: Point) {
         let texture_creator = self.texture_creator();
         let mut texture = texture_creator.load_texture_bytes(crate::font::MONOGRAM_PNG).unwrap();
@@ -149,6 +153,10 @@ impl DrawBackend for Canvas<sdl3::video::Window> {
             ).unwrap();
             pos.x += (font::GLYPH_SIZE * font::scale()).width;
         }
+    }
+
+    fn fill_rect(&mut self, rect: Rect) {
+        self.fill_rect(sdl3::render::FRect::from(rect)).unwrap();
     }
 }
 

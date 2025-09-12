@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use crate::prelude::*;
+use crate::theme;
 
 pub struct Button {
     text: String,
@@ -57,7 +58,10 @@ impl Widget for Button {
         let text_size = font::text_size(&self.text);
 
         let padding = 6;
+        ctx.set_color(theme::THEME.interactive);
+        ctx.fill_rect(Point::zero().with_size(text_size + padding * 2));
         ctx.draw_text(&self.text, Point::new(padding, padding));
+        ctx.set_color(theme::THEME.primary);
         ctx.draw_rect(Point::zero().with_size(text_size + padding * 2));
 
         if !self.pressed {

@@ -9,4 +9,5 @@ pub mod pixels;
 pub mod font;
 #[macro_use]
 pub mod macros;
+pub mod theme;
 mod ffi;

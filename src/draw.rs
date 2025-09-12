@@ -10,7 +10,7 @@
 
 use std::{cmp, rc::Rc};
 
-use crate::{font, prelude::*, rect::Orientation, widgets::SharedWidget};
+use crate::{font, prelude::*, rect::Orientation, theme, widgets::SharedWidget};
 
 pub const DEFAULT_PADDING: u32 = 5;
 
@@ -20,6 +20,7 @@ enum DrawCommand {
     Color(Color),
     Text(Rc<String>, Point),
     Claim(Rect),
+    FillRect(Rect),
 }
 
 /**
@@ -27,6 +28,8 @@ enum DrawCommand {
  * The widget may be unaware of its placement. It can just use the zero point
  * to draw from the top-left corner. The offset is added before sending the commands to the
  * actual rendering backend.
+ * 
+ * DrawContext always sets a default color.
 */
 pub struct DrawContext {
     zero_point: Point,
@@ -41,7 +44,13 @@ impl DrawContext {
     pub fn draw_text<T: Into<String>>(&mut self, text: T, pos: Point) {
         self.commands.push(DrawCommand::Text(Rc::new(text.into()), pos));
     }
-    /// Get the draw offset
+    pub fn set_color(&mut self, color: Color) {
+        self.commands.push(DrawCommand::Color(color));
+    }
+    pub fn fill_rect(&mut self, rect: Rect) {
+        self.commands.push(DrawCommand::FillRect(rect));
+    }
+    /// Get the draw origin
     pub fn zero_point(&self) -> Point {
         self.zero_point
     }
@@ -49,10 +58,11 @@ impl DrawContext {
         eprintln!("DrawCommands: {:?}", self.commands);
         for command in &self.commands {
             match command {
-                DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point + *rect),
+                DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point() + *rect),
                 DrawCommand::Color(color) => backend.set_color(*color),
-                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point + *point),
+                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point() + *point),
                 DrawCommand::Claim(_) => {},
+                DrawCommand::FillRect(rect) => backend.fill_rect(self.zero_point() + *rect),
             }
         }
     }
@@ -60,7 +70,7 @@ impl DrawContext {
         Self {
             zero_point: pos,
             commands: vec![
-                DrawCommand::Color(Color::RGB(0, 0, 0))
+                DrawCommand::Color(theme::THEME.primary)
             ],
         }
     }
@@ -84,6 +94,10 @@ impl DrawContext {
                 DrawCommand::Claim(rect) => {
                     max.width = cmp::max(max.width, rect.total().width);
                     max.height = cmp::max(max.height, rect.total().height);
+                },
+                DrawCommand::FillRect(rect) => {
+                    max.width = cmp::max(max.width, rect.total().width);
+                    max.height = cmp::max(max.height, rect.total().height);
                 }
             }
         }
@@ -100,6 +114,7 @@ impl DrawContext {
                 DrawCommand::Rect(rect) => DrawCommand::Rect(diff + rect),
                 DrawCommand::Text(str, point) => DrawCommand::Text(str.clone(), diff + point),
                 DrawCommand::Claim(rect) => DrawCommand::Claim(diff + rect),
+                DrawCommand::FillRect(rect) => DrawCommand::FillRect(diff + rect),
                 _ => command.clone()
             });
         }
