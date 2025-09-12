@@ -1,6 +1,11 @@
 = Rust Widget Tool Kit
 
-Wtk is a widget toolkit for rust. The goal is to create a platform agnostic toolkit that can later be used for my own linux userland https://github.com/LevitatingBusinessMan/azathos[Azathos]. Currently only SDL2 is supported as a backend.
+Wtk is a widget toolkit for rust. The goal is to create a platform agnostic toolkit that can later be used for my own linux userland https://github.com/LevitatingBusinessMan/azathos[Azathos]. However, currently SDL3 is supported as a backend.
+
+Wtk is developed with three primary goals:
+* Keep the API extremely simple
+* Provide a C interface for use in language bindings (Ruby/Python etc)
+* Be backend agnostic (ready to go baremetal even)
 
 image::screenshots/2025-09-11_01-18.png[]
 
