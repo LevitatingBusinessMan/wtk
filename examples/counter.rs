@@ -10,19 +10,17 @@ fn main() {
     let count = Rc::new(RefCell::new(0));
     let label = Label::new(format!("Counter: 0")).shared();
     let button1 = Button::new("+", enclose!((count, label) move |_b| {
-        let mut count = count.borrow_mut();
-        count.add_assign(1);
-        label.borrow_mut().set_text(format!("Counter: {count}"));
+        count.borrow_mut().add_assign(1);
+        label.borrow_mut().set_text(format!("Counter: {}", count.borrow()));
     })).shared();
     let button2 = Button::new("-", enclose!((count, label) move |_b| {
-        let mut count = count.borrow_mut();
-        count.add_assign(-1);
-        label.borrow_mut().set_text(format!("Counter: {count}"));
+        count.borrow_mut().add_assign(-1);
+        label.borrow_mut().set_text(format!("Counter: {}", count.borrow()));
     })).shared();
     app.add_widget(label);
     let mut box_ = WBox::new(Orientation::Horizontal);
-    box_.add_widget(button1.clone());
-    box_.add_widget(button2.clone());
+    box_.add_widget(button1);
+    box_.add_widget(button2);
     app.add_widget(box_.shared());
     app.run();
 }
