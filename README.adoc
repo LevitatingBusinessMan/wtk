@@ -12,6 +12,8 @@ image::screenshots/2025-09-13_01-47.png[]
 
 == Examples
 
+For more examples see the link:/examples[/examples] directory.
+
 ```RUST
 use wtk;
 use wtk::prelude::*;
