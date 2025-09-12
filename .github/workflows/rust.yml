@@ -22,6 +22,6 @@ jobs:
       - run: |
          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain ${{matrix.toolchain}} --target x86_64-unknown-linux-musl
          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
-         sudo apt-get update && sudo apt install libsdl2-gfx-dev libsdl2-image-dev -y
+         sudo apt-get update && sudo apt install libsdl3-dev libsdl3-image-dev -y
       - run: cargo +${{matrix.toolchain}} build
       - run: cargo +${{matrix.toolchain}} test
