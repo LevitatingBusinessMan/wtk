@@ -6,6 +6,8 @@ pub mod wbox;
 pub use wbox::WBox;
 pub mod radio_button;
 pub use radio_button::RadioButton;
+pub mod entry;
+pub use entry::Entry;
 
 use std::cell::RefCell;
 use std::rc::Rc;

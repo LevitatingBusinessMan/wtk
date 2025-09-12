@@ -1,6 +1,4 @@
-use std::rc::Rc;
-
-use crate::{font, prelude::*};
+use crate::prelude::*;
 
 pub struct Label {
     text: String,
@@ -18,7 +16,6 @@ impl Label {
 
 impl Widget for Label {
     fn draw(&self, ctx: &mut DrawContext) {
-        let padding = 6;
-        ctx.draw_text(&self.text, Point::new(padding, padding));
+        ctx.draw_text(&self.text, ctx.zero_point());
     }
 }

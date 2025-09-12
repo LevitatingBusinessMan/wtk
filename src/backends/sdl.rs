@@ -128,9 +128,9 @@ impl DrawBackend for Canvas<sdl2::video::Window> {
             self.copy(
                 &texture,
                 Some((&crate::font::source_char(c)).into()),
-                Some((&pos.with_size(font::GLYPH_SIZE * font::DEFAULT_SCALE)).into())
+                Some((&pos.with_size(font::GLYPH_SIZE * font::scale())).into())
             ).unwrap();
-            pos.x += crate::font::GLYPH_SIZE.width * 2;
+            pos.x += (font::GLYPH_SIZE * font::scale()).width;
         }
     }
 }
