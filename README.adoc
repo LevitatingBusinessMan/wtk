@@ -8,7 +8,7 @@ Wtk is developed with three primary goals:
 * Provide a C interface for use in language bindings (Ruby/Python etc)
 * Be backend agnostic (ready to go baremetal even)
 
-image::screenshots/2025-09-11_01-18.png[]
+image::screenshots/2025-09-13_01-47.png[]
 
 == Examples
 
