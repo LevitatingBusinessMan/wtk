@@ -13,11 +13,11 @@ path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["sdl2", "xrdb"]
+default = ["sdl3", "xrdb"]
 
 [dependencies]
 libc = "0.2.175"
-sdl2 = { version = "0", features = ["image"], optional = true }
+sdl3 = { version = "0", features = ["image"], optional = true }
 xrdb = { version = "0.1.1", optional = true }
 
 [dev-dependencies]

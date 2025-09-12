@@ -16,5 +16,5 @@ pub use crate::widgets::WBox;
 pub use crate::event::input::MouseButton;
 pub use crate::font;
 
-#[cfg(feature = "sdl2")]
+#[cfg(feature = "sdl3")]
 pub use crate::backends::SDLBackend;
