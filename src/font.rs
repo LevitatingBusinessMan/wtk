@@ -1,3 +1,6 @@
+#[cfg(feature = "xrdb")]
+use std::sync::LazyLock;
+
 use crate::prelude::*;
 #[cfg(feature = "xrdb")]
 use xrdb;
@@ -23,15 +26,21 @@ pub fn text_size(str: &str) -> Size {
 }
 
 #[cfg(feature = "xrdb")]
-static XFT_DPI: std::sync::LazyLock<Option<f64>> = std::sync::LazyLock::new(|| xrdb::Xft::new().dpi.map(|dpi| dpi as f64 / 100.0));
+static XFT_DPI: LazyLock<Option<f64>> = LazyLock::new(|| xrdb::Xft::new().dpi.map(|dpi| dpi as f64 / 100.0));
+
+static WTK_TEXT_SCALE: LazyLock<Option<f64>> = LazyLock::new(||
+    std::env::var("WTK_TEXT_SCALE")
+        .map(|e| e.parse().unwrap())
+        .ok()
+    );
 
 /// Get font scale
 pub fn scale() -> f64 {
     #[cfg(feature = "xrdb")] 
     {
-        return XFT_DPI.unwrap_or(DEFAULT_SCALE)
+        return WTK_TEXT_SCALE.unwrap_or(XFT_DPI.unwrap_or(DEFAULT_SCALE))
     }
-    DEFAULT_SCALE
+    WTK_TEXT_SCALE.unwrap_or(DEFAULT_SCALE)
 }
 
 // #[test]

@@ -75,9 +75,9 @@ impl Into<Event> for sdl3::event::Event {
     }
 }
 
-impl Into<crate::event::input::MouseButton> for sdl3::mouse::MouseButton {
-    fn into(self) -> crate::event::input::MouseButton {
-        match self {
+impl From<sdl3::mouse::MouseButton> for crate::event::input::MouseButton {
+    fn from(button: sdl3::mouse::MouseButton) -> Self {
+        match button {
             MouseButton::Unknown => crate::event::input::MouseButton::Left,
             MouseButton::Left => crate::event::input::MouseButton::Left,
             MouseButton::Middle => crate::event::input::MouseButton::Middle,
@@ -88,38 +88,38 @@ impl Into<crate::event::input::MouseButton> for sdl3::mouse::MouseButton {
     }
 }
 
-impl Into<Rect> for &sdl3::rect::Rect {
-    fn into(self) -> Rect {
+impl From<&sdl3::rect::Rect> for Rect {
+    fn from(rect: &sdl3::rect::Rect) -> Self {
         Rect {
-            x: self.x as u32,
-            y: self.y as u32,
-            width: self.w as u32,
-            height: self.h as u32,
+            x: rect.x as u32,
+            y: rect.y as u32,
+            width: rect.w as u32,
+            height: rect.h as u32,
         }
     }
 }
 
-impl Into<sdl3::rect::Rect> for &Rect {
-    fn into(self) -> sdl3::rect::Rect {
-        sdl3::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
+impl From<&Rect> for sdl3::rect::Rect {
+    fn from(rect: &Rect) -> Self {
+        sdl3::rect::Rect::new(rect.x as i32, rect.y as i32, rect.width, rect.height)
     }
 }
 
-impl Into<sdl3::rect::Rect> for Rect {
-    fn into(self) -> sdl3::rect::Rect {
-        sdl3::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
+impl From<Rect> for sdl3::rect::Rect {
+    fn from(rect: Rect) -> Self {
+        sdl3::rect::Rect::new(rect.x as i32, rect.y as i32, rect.width, rect.height)
     }
 }
 
-impl Into<sdl3::render::FRect> for &Rect {
-    fn into(self) -> sdl3::render::FRect {
-        sdl3::render::FRect::new(self.x as f32, self.y as f32, self.width as f32, self.height as f32)
+impl From<&Rect> for sdl3::render::FRect {
+    fn from(rect: &Rect) -> Self {
+        sdl3::render::FRect::new(rect.x as f32, rect.y as f32, rect.width as f32, rect.height as f32)
     }
 }
 
-impl Into<sdl3::render::FRect> for Rect {
-    fn into(self) -> sdl3::render::FRect {
-        sdl3::render::FRect::new(self.x as f32, self.y as f32, self.width as f32, self.height as f32)
+impl From<Rect> for sdl3::render::FRect {
+    fn from(rect: Rect) -> Self {
+        sdl3::render::FRect::new(rect.x as f32, rect.y as f32, rect.width as f32, rect.height as f32)
     }
 }
 
@@ -139,7 +139,8 @@ impl DrawBackend for Canvas<sdl3::video::Window> {
     }
     fn draw_text(&mut self, text: &str, mut pos: Point) {
         let texture_creator = self.texture_creator();
-        let texture = texture_creator.load_texture_bytes(crate::font::MONOGRAM_PNG).unwrap();
+        let mut texture = texture_creator.load_texture_bytes(crate::font::MONOGRAM_PNG).unwrap();
+        texture.set_scale_mode(sdl3::render::ScaleMode::Nearest);
         for c in text.chars() {
             self.copy(
                 &texture,
