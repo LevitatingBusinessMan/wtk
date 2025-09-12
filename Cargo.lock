@@ -4,9 +4,21 @@ version = 4
 
 [[package]]
 name = "bitflags"
-version = "2.9.4"
+version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2261d10cca569e4643e526d8dc2e62e433cc8aba21ab764233731f8d369bf394"
+checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
+
+[[package]]
+name = "c_vec"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fdd7a427adc0135366d99db65b36dae9237130997e560ed61118041fb72be6e8"
+
+[[package]]
+name = "cfg-if"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
 
 [[package]]
 name = "darling"
@@ -189,32 +201,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
-name = "sdl3"
-version = "0.14.42"
+name = "sdl2"
+version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00e2a92b001023557b72e649c3a4e2152692cbc85acd234fd1ca58ac158accac"
+checksum = "2d42407afc6a8ab67e36f92e80b8ba34cbdc55aaeed05249efe9a2e8d0e9feef"
 dependencies = [
  "bitflags",
+ "c_vec",
  "lazy_static",
  "libc",
- "sdl3-image-sys",
- "sdl3-sys",
+ "sdl2-sys",
 ]
 
 [[package]]
-name = "sdl3-image-sys"
-version = "0.2.0+SDL3-image-3.2.4"
+name = "sdl2-sys"
+version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d92bd93ce75ca9b027474f90c788daf3b5ced8410ee3c1dcb478a10030bf162"
+checksum = "3ff61407fc75d4b0bbc93dc7e4d6c196439965fbef8e4a4f003a36095823eac0"
 dependencies = [
- "sdl3-sys",
+ "cfg-if",
+ "libc",
+ "version-compare",
 ]
-
-[[package]]
-name = "sdl3-sys"
-version = "0.5.5+SDL3-3.2.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "488b4c68d9c0a450087a8b7c9dc6921483354127b0e60033d2d9b8f6a281331b"
 
 [[package]]
 name = "strsim"
@@ -303,6 +311,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c1f860d7d29cf02cb2f3f359fd35991af3d30bac52c57d265a3c461074cb4dc"
 
 [[package]]
+name = "version-compare"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "579a42fc0b8e0c63b76519a339be31bed574929511fa53c1a3acae26eb258f29"
+
+[[package]]
 name = "windows-sys"
 version = "0.59.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -381,7 +395,7 @@ version = "0.1.0"
 dependencies = [
  "libc",
  "mpris",
- "sdl3",
+ "sdl2",
  "xrdb",
 ]
 

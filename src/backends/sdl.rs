@@ -1,4 +1,4 @@
-use sdl3::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
+use sdl2::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
 use crate::{font::{self}, prelude::*};
 
 use super::DrawBackend;
@@ -6,19 +6,19 @@ use super::DrawBackend;
 pub struct SDLBackend {
     ctx: Sdl,
     video: VideoSubsystem,
-    canvas: Canvas<sdl3::video::Window>,
+    canvas: Canvas<sdl2::video::Window>,
     event_pump: EventPump,
 }
 
 impl Backend for SDLBackend {
     fn init(title: &str) -> Self {
-        let ctx = sdl3::init().unwrap();
+        let ctx = sdl2::init().unwrap();
         let video = ctx.video().unwrap();
         let win = video.window(title, 300, 200)
             .position_centered()
             .build()
             .unwrap();
-        let mut canvas = win.into_canvas();
+        let mut canvas = win.into_canvas().build().unwrap();
         let event_pump = ctx.event_pump().unwrap();
 
         DrawBackend::clear(&mut canvas);
@@ -42,14 +42,14 @@ impl Backend for SDLBackend {
     }
 }
 
-impl Into<Event> for sdl3::event::Event {
+impl Into<Event> for sdl2::event::Event {
     fn into(self) -> Event {
         match self {
             Self::Quit{ timestamp: _ } => Event::Quit,
             Self::MouseButtonDown{ timestamp: _, window_id: _, which: _, mouse_btn, clicks: _, x, y }  => {
                 Event::MouseButtonDown { button: mouse_btn.into(), pos: Point::new(x as u32, y as u32)}
             },
-            Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {
+            Self::Window { timestamp, window_id, win_event: WindowEvent::SizeChanged(w, h) } => {
                 Event::Resized(Size::new(w as u32, h as u32))
             },
             Self::MouseMotion { timestamp, window_id, which, mousestate, x, y, xrel, yrel } => {
@@ -73,7 +73,7 @@ impl Into<Event> for sdl3::event::Event {
     }
 }
 
-impl Into<crate::event::input::MouseButton> for sdl3::mouse::MouseButton {
+impl Into<crate::event::input::MouseButton> for sdl2::mouse::MouseButton {
     fn into(self) -> crate::event::input::MouseButton {
         match self {
             MouseButton::Unknown => crate::event::input::MouseButton::Left,
@@ -86,7 +86,7 @@ impl Into<crate::event::input::MouseButton> for sdl3::mouse::MouseButton {
     }
 }
 
-impl Into<Rect> for &sdl3::rect::Rect {
+impl Into<Rect> for &sdl2::rect::Rect {
     fn into(self) -> Rect {
         Rect {
             x: self.x as u32,
@@ -97,31 +97,20 @@ impl Into<Rect> for &sdl3::rect::Rect {
     }
 }
 
-impl Into<sdl3::rect::Rect> for &Rect {
-    fn into(self) -> sdl3::rect::Rect {
-        sdl3::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
+impl Into<sdl2::rect::Rect> for &Rect {
+    fn into(self) -> sdl2::rect::Rect {
+        sdl2::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
     }
 }
 
-impl Into<sdl3::rect::Rect> for Rect {
-    fn into(self) -> sdl3::rect::Rect {
-        sdl3::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
+impl Into<sdl2::rect::Rect> for Rect {
+    fn into(self) -> sdl2::rect::Rect {
+        sdl2::rect::Rect::new(self.x as i32, self.y as i32, self.width, self.height)
     }
 }
 
-impl Into<sdl3::render::FRect> for &Rect {
-    fn into(self) -> sdl3::render::FRect {
-        sdl3::render::FRect::new(self.x as f32, self.y as f32, self.width as f32, self.height as f32)
-    }
-}
 
-impl Into<sdl3::render::FRect> for Rect {
-    fn into(self) -> sdl3::render::FRect {
-        sdl3::render::FRect::new(self.x as f32, self.y as f32, self.width as f32, self.height as f32)
-    }
-}
-
-impl DrawBackend for Canvas<sdl3::video::Window> {
+impl DrawBackend for Canvas<sdl2::video::Window> {
     fn draw_rect(&mut self, rect: Rect) {
         self.draw_rect(rect.into()).unwrap();
     }
@@ -149,8 +138,8 @@ impl DrawBackend for Canvas<sdl3::video::Window> {
     }
 }
 
-impl Into<sdl3::pixels::Color> for Color {
-    fn into(self) -> sdl3::pixels::Color {
-        sdl3::pixels::Color::RGBA(self.r, self.g, self.b, self.a)
+impl Into<sdl2::pixels::Color> for Color {
+    fn into(self) -> sdl2::pixels::Color {
+        sdl2::pixels::Color::RGBA(self.r, self.g, self.b, self.a)
     }
 }

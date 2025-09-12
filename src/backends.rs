@@ -1,6 +1,6 @@
-#[cfg(feature = "sdl3")]
+#[cfg(feature = "sdl2")]
 mod sdl;
-#[cfg(feature = "sdl3")]
+#[cfg(feature = "sdl2")]
 pub use sdl::SDLBackend;
 
 use crate::prelude::*;
