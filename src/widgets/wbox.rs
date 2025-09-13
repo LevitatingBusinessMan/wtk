@@ -72,5 +72,15 @@ impl Widget for WBox {
             }
         }
         draw
-    }  
+    }
+    fn set_bounds(&mut self, bounds: Rect) {
+        // when drawing we set the childs bounds, but in the case
+        // our parent did not draw us, we receive empty bounds
+        // and should set this on our children as well
+        if bounds.size() == Size::zero() {
+            for widget in &self.widgets {
+                widget.borrow_mut().set_bounds(bounds);
+            }
+        }
+    }
 }

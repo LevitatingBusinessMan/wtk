@@ -98,6 +98,10 @@ macro_rules! elm_cb {
     ($sender:ident, $($param:pat),+ => $message:expr) => {
         enclose!(($sender) move |$($param),+| $sender.send($message).unwrap())
     };
+    // Multiple identifiers case with explicit sender
+    (($($ident:ident),+) $sender:ident, $($param:pat),+ => $message:expr) => {
+        enclose!(($($ident),+) move |$($param),+| $sender.send($message).unwrap())
+    };
 }
 
 /**

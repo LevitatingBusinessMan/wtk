@@ -8,6 +8,8 @@ pub use wbox::WBox;
 //pub use radio_button::RadioButton;
 pub mod entry;
 pub use entry::Entry;
+pub mod hider;
+pub use hider::Hider;
 
 use std::cell::RefCell;
 use std::rc::Rc;

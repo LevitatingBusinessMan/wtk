@@ -8,6 +8,7 @@ pub struct Button {
     cb: Option<Rc<dyn Fn(&mut Button)>>,
     bounds: Rect,
     pressed: bool,
+    padding: u32,
 }
 
 impl Button {
@@ -17,6 +18,7 @@ impl Button {
             cb: Some(Rc::new(cb)),
             bounds: Rect::zero(),
             pressed: false,
+            padding: 6,
         }
     }
     pub fn on_click<F>(&mut self, cb: F) -> &mut Self where F: Fn(&mut Button) + 'static {
@@ -27,6 +29,10 @@ impl Button {
         self.text = text.into();
         self
     }
+    pub fn padding(mut self, padding: u32) -> Self {
+        self.padding = padding;
+        self
+    }
 }
 
 impl Widget for Button {
@@ -35,6 +41,7 @@ impl Widget for Button {
         match e {
             Event::MouseButtonDown { button: _b, pos } => {
                 if pos.is_in(self.bounds) && matches!(_b, MouseButton::Left) {
+                    println!("{:?} clicked", self.bounds);
                     self.pressed = true;
                     if let Some(cb) = &self.cb {
                         let cb = cb.clone();
@@ -55,16 +62,15 @@ impl Widget for Button {
     }
     
     fn draw(&self, ctx: &mut DrawContext) {
-        let padding = 6;
         let text_size = font::text_size(&self.text);
-        let mut button_size = text_size + padding * 2;
+        let mut button_size = text_size + self.padding * 2;
         if self.pressed {
             button_size += 2;
         }
 
         ctx.set_color(theme::THEME.interactive);
         ctx.fill_rect(Point::zero().with_size(button_size));
-        ctx.draw_text(&self.text, Point::new(padding, padding));
+        ctx.draw_text(&self.text, Point::new(self.padding, self.padding));
         ctx.set_color(theme::THEME.primary);
         ctx.draw_rect(Point::zero().with_size(button_size));
 

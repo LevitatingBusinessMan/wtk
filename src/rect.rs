@@ -105,7 +105,7 @@ impl cmp::PartialOrd for Point {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Size {
     pub width: u32,
     pub height: u32,
@@ -158,6 +158,12 @@ impl Size {
         Size {
             width,
             height
+        }
+    }
+    pub const fn zero() -> Self {
+        Self {
+            width: 0,
+            height: 0,
         }
     }
 }

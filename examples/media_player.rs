@@ -1,5 +1,7 @@
 use mpris;
 use mpris::Player;
+use mpris::PlayerFinder;
+use wtk::elm;
 use wtk::elm_cb;
 use wtk::enclose;
 use wtk::prelude::*;
@@ -19,15 +21,21 @@ pub struct MediaPlayer {
     playing_label: Rc<RefCell<Label>>,
     inner_box: WBox,
     bar: Rc<RefCell<Bar>>,
+    player_list: Rc<RefCell<Hider<WBox>>>,
+    player_label: Rc<RefCell<Label>>,
+    player_list_button: Rc<RefCell<Button>>,
+    player_finder: PlayerFinder,
 }
 
+#[derive(Debug)]
 pub enum MediaPlayerMessage {
     Previous,
     PlayPause,
     Next,
-    ChangePlayer,
+    ChangePlayer(String),
     UpdateStatus,
     SetProgress(f32),
+    TogglePlayerList,
 }
 
 
@@ -35,29 +43,35 @@ impl MediaPlayer {
     pub fn new() -> Self {
         let (sender, receiver) = mpsc::channel();
         let sender = Arc::new(sender);
-        
-        let player = find_player().ok();
 
-        let player_label = Label::new(format!("Player: {}", player.as_ref().map_or( "none".to_owned(), |p| p.bus_name_player_name_part().to_string())));
+        let mut player_box = WBox::new(Orientation::Horizontal);
+        let player_label = Label::new(String::new()).shared();
+        let player_list_button = Button::new("+", elm_cb!(sender, _b => MediaPlayerMessage::TogglePlayerList)).padding(2).shared();
+        player_box.add_widget(player_label.clone()).add_widget(player_list_button.clone());
+
         let playing_label = Label::new("Playing: error").shared();
-        let previous_button = Button::new("<", elm_cb!(sender, _b => MediaPlayerMessage::Previous));
-        let play_pause_button = Button::new("||", elm_cb!(sender, _b => MediaPlayerMessage::PlayPause));
-        let next_button = Button::new(">", elm_cb!(sender, _b => MediaPlayerMessage::Next));
-        let bar = Bar::new(sender.clone(), 400).shared();
+        let previous_button = Button::new("<", elm_cb!(sender, _b => MediaPlayerMessage::Previous)).padding(5);
+        let play_pause_button = Button::new("||", elm_cb!(sender, _b => MediaPlayerMessage::PlayPause)).padding(5);
+        let next_button = Button::new(">", elm_cb!(sender, _b => MediaPlayerMessage::Next)).padding(5);
+        let bar = Bar::new(sender.clone(), 300).shared();
 
         let mut inner_box = WBox::new(Orientation::Vertical);
-        let mut player_controls_box = WBox::new(Orientation::Horizontal);
-        player_controls_box.set_padding(4);
-        player_controls_box.set_margin(5);
-        player_controls_box.set_border(true);
-        player_controls_box.add_widget(previous_button.shared());
-        player_controls_box.add_widget(play_pause_button.shared());
-        player_controls_box.add_widget(next_button.shared());
+        let mut buttons = WBox::new(Orientation::Horizontal);
+        buttons.add_widget(previous_button.shared());
+        buttons.add_widget(play_pause_button.shared());
+        buttons.add_widget(next_button.shared());
 
-        inner_box.add_widget(player_label.shared());
+        let player_list = WBox::new(Orientation::Vertical);
+        let player_list = Hider::<WBox>::new(player_list, true).shared();
+
+        inner_box.add_widget(player_box.shared());
+        inner_box.add_widget(player_list.clone());
         inner_box.add_widget(playing_label.clone());
         inner_box.add_widget(bar.clone());
-        inner_box.add_widget(player_controls_box.shared());
+        inner_box.add_widget(buttons.shared());
+
+        let player_finder = PlayerFinder::new().unwrap();
+        let player = find_player(&player_finder).ok();
 
         // I would prefer listening to player events externally but Player is not thread-safe
         std::thread::Builder::new().spawn(enclose!((sender) move || {
@@ -67,6 +81,8 @@ impl MediaPlayer {
             }
         })).unwrap();
 
+        sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
+
         MediaPlayer {
             player,
             sender,
@@ -74,6 +90,10 @@ impl MediaPlayer {
             inner_box,
             playing_label,
             bar,
+            player_list,
+            player_label,
+            player_list_button,
+            player_finder,
         }
     }
 }
@@ -86,27 +106,31 @@ impl ElmModel for MediaPlayer {
     }
 
     fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) where B: Backend {
+        println!("{msg:?}");
         match msg {
-            MediaPlayerMessage::Previous => {
+                MediaPlayerMessage::Previous => {
                 if let Some(player) = &self.player {
-                    player.previous().unwrap();
+                    let _ = player.previous();
                     self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                 }
             },
             MediaPlayerMessage::PlayPause => {
                 if let Some(player) = &self.player {
-                    player.play_pause().unwrap();
+                    let _ = player.play_pause();
                     self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                 }
             },
             MediaPlayerMessage::Next => {
                 if let Some(player) = &self.player {
-                    player.next().unwrap();
+                    let _ = player.next();
                     self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                 }
             },
-            MediaPlayerMessage::ChangePlayer => {
-                todo!()
+            MediaPlayerMessage::ChangePlayer(player_name) => {
+                self.player = self.player_finder.find_by_name(&player_name).ok();
+                self.player_list.borrow_mut().hide();
+                self.player_list_button.borrow_mut().set_text("+");
+                self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
             },
             MediaPlayerMessage::UpdateStatus => {
                 if let Some(player) = &self.player {
@@ -114,8 +138,12 @@ impl ElmModel for MediaPlayer {
                     let position = player.get_position().unwrap();
                     let artists = metadata.artists().map_or("none".to_string(), |arts| arts.join(", ").to_string());
                     let title = metadata.title().unwrap_or("none");
-                    self.playing_label.borrow_mut().set_text(format!("Playing: {} - {}", artists, title));
-                    self.bar.borrow_mut().progress = metadata.length().map_or(0.0, |length| position.as_secs_f32() / length.as_secs_f32())
+                    self.playing_label.borrow_mut().set_text(format!("{} - {}", artists, title));
+                    self.player_label.borrow_mut().set_text(format!("Controlling {} ", player.identity()));
+                    self.bar.borrow_mut().progress = metadata.length().map_or(0.0, |length| position.as_secs_f32() / length.as_secs_f32());
+                    if !self.player_list.borrow().hidden() {
+                        self.player_list.replace(create_player_list(&self.player_finder, self.sender.clone()));
+                    }
                 }
             },
             MediaPlayerMessage::SetProgress(progress) => {
@@ -128,6 +156,17 @@ impl ElmModel for MediaPlayer {
                         player.set_position(track_id, &position).unwrap();
                         self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                     }
+                }
+            },
+            MediaPlayerMessage::TogglePlayerList => {
+                let mut player_list = self.player_list.borrow_mut();
+                if player_list.hidden() {
+                    player_list.show();
+                    self.player_list_button.borrow_mut().set_text("-");
+                    *player_list = create_player_list(&self.player_finder, self.sender.clone());
+                } else {
+                    player_list.hide();
+                    self.player_list_button.borrow_mut().set_text("+");
                 }
             },
         };
@@ -143,6 +182,17 @@ impl Widget for MediaPlayer {
     }
 }
 
+fn create_player_list(player_finder: &PlayerFinder, sender: Arc<mpsc::Sender<MediaPlayerMessage>>) -> Hider<WBox> {
+    let mut new_box = WBox::new(Orientation::Vertical);
+    for player in player_finder.iter_players().unwrap() {
+        if let Ok(player) = player {
+            let button = Button::new(player.identity().to_string(), elm_cb!(sender, _b => MediaPlayerMessage::ChangePlayer(player.identity().to_string())));
+            new_box.add_widget(button.shared());
+        }
+    }
+    Hider::new(new_box, false)
+}
+
 fn main() {
     let mut app = App::<SDLBackend>::new("WTK Media Player");
     let media_player = MediaPlayer::new().shared();
@@ -150,10 +200,7 @@ fn main() {
     app.elm_run(media_player);
 }
 
-fn find_player() -> Result<mpris::Player, String> {
-    let player_finder = mpris::PlayerFinder::new()
-        .map_err(|e| e.to_string())?;
-
+fn find_player(player_finder: &PlayerFinder) -> Result<mpris::Player, String> {
     match player_finder.find_active() {
         Ok(player) => Ok(player),
         Err(e) => match e {
