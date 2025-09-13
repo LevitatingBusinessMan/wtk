@@ -43,3 +43,6 @@ int main(void) {
     wtk_app_sdl_destroy(app);
 }
 ```
+
+= Acknowledgement
+The font in image:src/fonts/monogram.png[] is Monogram[https://datagoblin.itch.io/monogram] by Data Goblin
