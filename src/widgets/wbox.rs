@@ -15,7 +15,16 @@ impl WBox {
     pub fn new(orientation: Orientation) -> Self {
         Self {
             widgets: vec![],
-            orientation: orientation,
+            orientation,
+            border: false,
+            padding: draw::DEFAULT_PADDING,
+            margin: 0,
+        }
+    }
+    pub fn with(orientation: Orientation, widgets: Vec<SharedWidget>) -> Self {
+        Self {
+            widgets,
+            orientation,
             border: false,
             padding: draw::DEFAULT_PADDING,
             margin: 0,

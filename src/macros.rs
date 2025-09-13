@@ -1,3 +1,4 @@
+/// A convenience macro for encapsulating cloned references with an expression.
 #[macro_export]
 macro_rules! enclose {
     ( ($( $x:ident ),*) $y:expr ) => {

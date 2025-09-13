@@ -31,6 +31,7 @@ enum DrawCommand {
  * 
  * DrawContext always sets a default color.
 */
+#[derive(Debug)]
 pub struct DrawContext {
     zero_point: Point,
     commands: Vec<DrawCommand>,

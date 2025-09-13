@@ -78,27 +78,24 @@ impl ElmModel for MediaPlayer {
         &mut self.receiver
     }
 
-    fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) -> bool where B: Backend {
+    fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) where B: Backend {
         match msg {
             MediaPlayerMessage::Previous => {
                 if let Some(player) = &self.player {
                     player.previous().unwrap();
                     self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
-                    return true
                 }
             },
             MediaPlayerMessage::PlayPause => {
                 if let Some(player) = &self.player {
                     player.play_pause().unwrap();
                     self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
-                    return true
                 }
             },
             MediaPlayerMessage::Next => {
                 if let Some(player) = &self.player {
                     player.next().unwrap();
                     self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
-                    return true
                 }
             },
             MediaPlayerMessage::ChangePlayer => {
@@ -110,11 +107,9 @@ impl ElmModel for MediaPlayer {
                     let artists = metadata.artists().map_or("none".to_string(), |arts| arts.join(", ").to_string());
                     let title = metadata.title().unwrap_or("none");
                     self.playing_label.borrow_mut().set_text(format!("Playing: {} - {}", artists, title));
-                    return true
                 }
             },
         };
-        return false
     }
 }
 
