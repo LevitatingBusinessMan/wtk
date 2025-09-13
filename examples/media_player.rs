@@ -1,46 +1,12 @@
 use mpris;
 use mpris::Player;
+use wtk::elm_cb;
 use wtk::enclose;
 use wtk::prelude::*;
 use std::rc::Rc;
 //use std::sync::mpmc::Sender;
 use std::sync::mpsc;
-
-// pub struct ElmApp<W> where W: Widget + ElmModel {
-//     widget: W,
-// }
-
-// impl<W> ElmApp<W> where W: Widget + ElmModel {
-//     pub fn new(widget: W) -> Self {
-//         Self {
-//             widget
-//         }
-//     }
-// }
-
-pub trait ElmModel {
-    type Message;
-    /// Send a message to the model
-    fn receiver(&mut self) -> &mut mpsc::Receiver<Self::Message>;
-    /// Process all events. Returns true if a draw is required.
-    fn update_all(&mut self) -> bool {
-        let mut draw = false;
-        loop {
-            match self.receiver().try_recv() {
-                Ok(msg) => {
-                    draw = self.update(msg);
-                },
-                Err(e) => match e {
-                    mpsc::TryRecvError::Empty => break,
-                    mpsc::TryRecvError::Disconnected => panic!(),
-                },
-            }
-        }
-        draw
-    }
-    /// Process a single event. Returns true if a draw is required.
-    fn update(&mut self, msg: Self::Message) -> bool;
-}
+use wtk::elm::*;
 
 pub struct MediaPlayer {
     player: Option<Player>,
@@ -54,13 +20,6 @@ pub enum MediaPlayerMessage {
     PlayPause,
     Next,
     ChangePlayer,
-}
-
-/// A shorthand for creating a closure that sends a message over a reference counted channel
-macro_rules! elm_cb {
-    ($sender:ident, $($param:pat),+ => $message:expr) => {
-        enclose!(($sender) move |$($param),+| $sender.send($message).unwrap())
-    };
 }
 
 impl MediaPlayer {
@@ -144,13 +103,7 @@ fn main() {
     let mut app = App::<SDLBackend>::new("WTK Media Player");
     let media_player = MediaPlayer::new().shared();
     app.add_widget(media_player.clone());
-    //let elm = ElmApp::<MediaPlayer>::new(media_player);
-    app.draw();
-    while !app.quit {
-        let draw = app.poll_and_process_event();
-        let draw = media_player.borrow_mut().update_all() || draw;
-        if draw { app.draw(); }
-    }
+    app.elm_run(media_player);
 }
 
 fn find_player() -> Result<mpris::Player, String> {

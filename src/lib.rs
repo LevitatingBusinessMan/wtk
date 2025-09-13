@@ -10,4 +10,5 @@ pub mod font;
 #[macro_use]
 pub mod macros;
 pub mod theme;
+pub mod elm;
 mod ffi;

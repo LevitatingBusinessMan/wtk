@@ -8,7 +8,7 @@ use crate::backends::Backend;
 pub struct App<B> where B: Backend {
     widgets: Vec<SharedWidget>,
     backend: B,
-    quit: bool,
+    pub quit: bool,
 }
 
 impl<B> App<B> where B: Backend {
@@ -39,6 +39,9 @@ impl<B> App<B> where B: Backend {
         }
         draw
     }
+
+    /// Continually process events, redrawing the UI if needed. Runs until a [Event::Quit] event is processed.
+    /// If you need finer control over the run loop, use [App::poll_and_process_event] and [App::draw] directly.
     pub fn run(&mut self) {
         self.draw();
         while !self.quit {
@@ -48,6 +51,17 @@ impl<B> App<B> where B: Backend {
             }
         }
     }
+
+    /// Executes [Backend::poll_event] on the backend. Then optionally process an event.
+    /// If a widget requests a draw true is returned.
+    pub fn poll_and_process_event(&mut self) -> bool {
+        if let Some(e) = self.backend.poll_event() {
+            self.process_event(&e)
+        } else {
+            false
+        }
+    }
+
     // fn draw(&mut self) {
     //     let backend = self.backend.draw_backend();
     //     backend.clear();
@@ -68,7 +82,9 @@ impl<B> App<B> where B: Backend {
     //     backend.present();
     //     self.backend.resize(window_size + padding);
     // }
-    fn draw(&mut self) {
+
+    /// Manually tell the backend to draw all widges. Useful for use in custom update loops.
+    pub fn draw(&mut self) {
         let backend = self.backend.draw_backend();
         backend.clear();
         let padding = draw::DEFAULT_PADDING;
