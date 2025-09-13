@@ -3,15 +3,19 @@ use mpris::Player;
 use wtk::elm_cb;
 use wtk::enclose;
 use wtk::prelude::*;
+use std::cell::RefCell;
 use std::rc::Rc;
 //use std::sync::mpmc::Sender;
 use std::sync::mpsc;
+use std::sync::Arc;
+use std::time::Duration;
 use wtk::elm::*;
 
 pub struct MediaPlayer {
     player: Option<Player>,
-    sender: Rc<mpsc::Sender<MediaPlayerMessage>>,
+    sender: Arc<mpsc::Sender<MediaPlayerMessage>>,
     receiver: mpsc::Receiver<MediaPlayerMessage>,
+    playing_label: Rc<RefCell<Label>>,
     inner_box: WBox,
 }
 
@@ -20,16 +24,18 @@ pub enum MediaPlayerMessage {
     PlayPause,
     Next,
     ChangePlayer,
+    UpdateStatus,
 }
 
 impl MediaPlayer {
     pub fn new() -> Self {
         let (sender, receiver) = mpsc::channel();
-        let sender = Rc::new(sender);
+        let sender = Arc::new(sender);
         
         let player = find_player().ok();
 
         let player_label = Label::new(format!("Player: {}", player.as_ref().map_or( "none".to_owned(), |p| p.bus_name_player_name_part().to_string())));
+        let playing_label = Label::new("Playing: error").shared();
         let previous_button = Button::new("<", elm_cb!(sender, _b => MediaPlayerMessage::Previous));
         let play_pause_button = Button::new("||", elm_cb!(sender, _b => MediaPlayerMessage::PlayPause));
         let next_button = Button::new(">", elm_cb!(sender, _b => MediaPlayerMessage::Next));
@@ -44,13 +50,23 @@ impl MediaPlayer {
         player_controls_box.add_widget(next_button.shared());
 
         inner_box.add_widget(player_label.shared());
+        inner_box.add_widget(playing_label.clone());
         inner_box.add_widget(player_controls_box.shared());
+
+        // I would prefer listening to player events externally but Player is not thread-safe
+        std::thread::Builder::new().spawn(enclose!((sender) move || {
+            loop {
+                sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
+                std::thread::sleep(Duration::new(1, 0));
+            }
+        })).unwrap();
 
         MediaPlayer {
             player,
             sender,
             receiver,
             inner_box,
+            playing_label,
         }
     }
 }
@@ -62,28 +78,40 @@ impl ElmModel for MediaPlayer {
         &mut self.receiver
     }
 
-    fn update(&mut self, msg: Self::Message) -> bool {
+    fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) -> bool where B: Backend {
         match msg {
             MediaPlayerMessage::Previous => {
                 if let Some(player) = &self.player {
-                    player.previous();
+                    player.previous().unwrap();
+                    self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                     return true
                 }
             },
             MediaPlayerMessage::PlayPause => {
                 if let Some(player) = &self.player {
-                    player.play_pause();
+                    player.play_pause().unwrap();
+                    self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                     return true
                 }
             },
             MediaPlayerMessage::Next => {
                 if let Some(player) = &self.player {
-                    player.next();
+                    player.next().unwrap();
+                    self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                     return true
                 }
             },
             MediaPlayerMessage::ChangePlayer => {
                 todo!()
+            },
+            MediaPlayerMessage::UpdateStatus => {
+                if let Some(player) = &self.player {
+                    let metadata = player.get_metadata().unwrap();
+                    let artists = metadata.artists().map_or("none".to_string(), |arts| arts.join(", ").to_string());
+                    let title = metadata.title().unwrap_or("none");
+                    self.playing_label.borrow_mut().set_text(format!("Playing: {} - {}", artists, title));
+                    return true
+                }
             },
         };
         return false

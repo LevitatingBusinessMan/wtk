@@ -10,5 +10,6 @@ pub mod font;
 #[macro_use]
 pub mod macros;
 pub mod theme;
+#[cfg(feature = "elm")]
 pub mod elm;
 mod ffi;
