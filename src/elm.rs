@@ -19,7 +19,6 @@
 //! Button::new("+", elm_cb!(sender, _b => CounterMessage::Increment)).shared();
 //! ```
 //! 
-//! 
 //! For an example app which used the Elm Architecture see the elm_counter en media_player examples.
 use std::cell::RefCell;
 use std::rc::Rc;

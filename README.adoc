@@ -45,4 +45,4 @@ int main(void) {
 ```
 
 = Acknowledgement
-The font in image:src/fonts/monogram.png[] is Monogram[https://datagoblin.itch.io/monogram] by Data Goblin
+* The font in image:src/fonts/monogram.png[] is Monogram[https://datagoblin.itch.io/monogram] by Data Goblin

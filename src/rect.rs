@@ -32,6 +32,9 @@ impl Rect {
     pub fn size(self) -> Size {
         Size::new(self.width, self.height)
     }
+    pub fn point(self) -> Point {
+        Point::new(self.x, self.y)
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -162,4 +165,17 @@ impl Size {
 #[derive(Clone, Copy)]
 pub enum Orientation {
     Horizontal, Vertical
+}
+
+impl ops::Add<u32> for Rect {
+    type Output = Rect;
+
+    fn add(self, rhs: u32) -> Self::Output {
+        Self {
+            x: self.x,
+            y: self.y,
+            width: self.width + rhs,
+            height: self.height + rhs,
+        }
+    }
 }
