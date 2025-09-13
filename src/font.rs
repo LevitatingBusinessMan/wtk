@@ -5,7 +5,7 @@ use crate::prelude::*;
 #[cfg(feature = "xrdb")]
 use xrdb;
 
-pub(crate) static MONOGRAM_PNG: &'static [u8] = include_bytes!("../monogram.png");
+pub(crate) static MONOGRAM_PNG: &'static [u8] = include_bytes!("fonts/monogram.png");
 static FONT_SIZE: Size = Size::new(96, 96);
 pub(crate) static GLYPH_SIZE: Size = Size::new(6, 12);
 pub(crate) static DEFAULT_SCALE: f64 = 2.0;
