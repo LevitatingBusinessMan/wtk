@@ -55,21 +55,23 @@ impl Widget for Button {
     }
     
     fn draw(&self, ctx: &mut DrawContext) {
-        let text_size = font::text_size(&self.text);
-
         let padding = 6;
+        let text_size = font::text_size(&self.text);
+        let mut button_size = text_size + padding * 2;
+        if self.pressed {
+            button_size += 2;
+        }
+
         ctx.set_color(theme::THEME.interactive);
-        ctx.fill_rect(Point::zero().with_size(text_size + padding * 2));
+        ctx.fill_rect(Point::zero().with_size(button_size));
         ctx.draw_text(&self.text, Point::new(padding, padding));
         ctx.set_color(theme::THEME.primary);
-        ctx.draw_rect(Point::zero().with_size(text_size + padding * 2));
+        ctx.draw_rect(Point::zero().with_size(button_size));
 
         if !self.pressed {
             //shadow
-            ctx.draw_rect(Point::zero().with_size(text_size + padding * 2 + 1));
-            ctx.draw_rect(Point::zero().with_size(text_size + padding * 2 + 2));
-        } else {
-            ctx.claim(Point::zero().with_size(text_size + padding * 2 + 2));
+            ctx.draw_rect(Point::zero().with_size(button_size + 1));
+            ctx.draw_rect(Point::zero().with_size(button_size + 2));
         }
     }
     

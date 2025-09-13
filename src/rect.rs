@@ -1,5 +1,6 @@
 use std::ops;
 use std::cmp;
+use std::ops::AddAssign;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Rect {
@@ -139,6 +140,13 @@ impl std::ops::Sub<u32> for Size {
             width: self.width - rhs,
             height: self.height - rhs,
         }
+    }
+}
+
+impl AddAssign<u32> for Size {
+    fn add_assign(&mut self, rhs: u32) {
+        self.width += rhs;
+        self.height += rhs;
     }
 }
 
