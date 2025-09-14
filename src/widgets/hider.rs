@@ -1,5 +1,8 @@
 use crate::prelude::*;
 
+/// Wraps around another widget to hide it.
+/// 
+/// [Widget::set_bounds] and [Widget::process_event] are passed through.
 pub struct Hider<T> where T: Widget {
     pub inner: T,
     hidden: bool,
