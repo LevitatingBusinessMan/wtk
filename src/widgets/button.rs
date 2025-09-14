@@ -41,17 +41,16 @@ impl Widget for Button {
         match e {
             Event::MouseButtonDown { button: _b, pos } => {
                 if pos.is_in(self.bounds) && matches!(_b, MouseButton::Left) {
-                    println!("{:?} clicked", self.bounds);
                     self.pressed = true;
-                    if let Some(cb) = &self.cb {
-                        let cb = cb.clone();
-                        cb(self);
-                        return true;
-                    }
+                    return true;
                 }
             },
             Event::MouseButtonUp { button: _b, pos } => {
                 if matches!(_b, MouseButton::Left) {
+                    if let Some(cb) = &self.cb && self.pressed && pos.is_in(self.bounds) {
+                        let cb = cb.clone();
+                        cb(self);
+                    }
                     self.pressed = false;
                     return true;
                 }

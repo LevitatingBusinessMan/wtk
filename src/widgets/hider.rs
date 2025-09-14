@@ -34,7 +34,6 @@ impl<T> Widget for Hider<T> where T: Widget {
     }
 
     fn set_bounds(&mut self, bounds: Rect) {
-        println!("{bounds:?} set bounds");
         self.inner.set_bounds(bounds);
     }
 }

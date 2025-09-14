@@ -153,9 +153,7 @@ impl ElmModel for MediaPlayer {
                 if let Some(player) = &self.player {
                     let metadata = player.get_metadata().unwrap();
                     if let Some(length) = metadata.length() && let Some(track_id) = metadata.track_id() {
-                        println!("{}", progress);
                         let position = Duration::from_secs_f32(length.as_secs_f32() * progress);
-                        println!("{} {:?}", track_id, position);
                         player.set_position(track_id, &position).unwrap();
                         self.sender.send(MediaPlayerMessage::UpdateStatus).unwrap();
                     }
