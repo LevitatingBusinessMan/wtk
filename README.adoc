@@ -44,5 +44,5 @@ int main(void) {
 }
 ```
 
-= Acknowledgement
+= Acknowledgements
 * The font in link:src/fonts/monogram.png[] is https://datagoblin.itch.io/monogram[Monogram] by Data Goblin
