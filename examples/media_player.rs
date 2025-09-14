@@ -136,14 +136,17 @@ impl ElmModel for MediaPlayer {
                 if let Some(player) = &self.player {
                     let metadata = player.get_metadata().unwrap();
                     let position = player.get_position().unwrap();
-                    let artists = metadata.artists().map_or("none".to_string(), |arts| arts.join(", ").to_string());
-                    let title = metadata.title().unwrap_or("none");
+                    let artists = metadata.artists().map_or("?".to_string(), |arts| arts.join(", ").to_string());
+                    let title = metadata.title().unwrap_or("?");
                     self.playing_label.borrow_mut().set_text(format!("{} - {}", artists, title));
                     self.player_label.borrow_mut().set_text(format!("Controlling {} ", player.identity()));
                     self.bar.borrow_mut().progress = metadata.length().map_or(0.0, |length| position.as_secs_f32() / length.as_secs_f32());
                     if !self.player_list.borrow().hidden() {
                         self.player_list.replace(create_player_list(&self.player_finder, self.sender.clone()));
                     }
+                } else {
+                    self.player_label.borrow_mut().set_text("No player selected");
+                    self.playing_label.borrow_mut().set_text("Playing: nothing");
                 }
             },
             MediaPlayerMessage::SetProgress(progress) => {

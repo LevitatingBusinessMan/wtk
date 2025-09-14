@@ -118,7 +118,7 @@ pub trait ElmLoop {
     ///     let mut app = App::<SDLBackend>::new("Counter go brrr");
     ///     let counter = Counter::new().shared();
     ///     app.add_widget(counter.clone());
-    ///     app.elm_run(counter);    
+    ///     app.elm_run(counter);
     /// }
     /// ```
     fn elm_run<M>(&mut self, model: Rc<RefCell<M>>) where M: ElmModel;
