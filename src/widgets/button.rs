@@ -12,7 +12,7 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new<F>(text: impl Into<String>, cb: F) -> Button where F: Fn(&mut Button) + 'static{
+    pub fn new<F>(text: impl Into<String>, cb: F) -> Button where F: Fn(&mut Button) + 'static {
         Button {
             text: text.into(),
             cb: Some(Rc::new(cb)),

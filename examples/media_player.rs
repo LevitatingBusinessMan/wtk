@@ -53,7 +53,7 @@ impl MediaPlayer {
         let previous_button = Button::new("<", elm_cb!(sender, _b => MediaPlayerMessage::Previous)).padding(5);
         let play_pause_button = Button::new("||", elm_cb!(sender, _b => MediaPlayerMessage::PlayPause)).padding(5);
         let next_button = Button::new(">", elm_cb!(sender, _b => MediaPlayerMessage::Next)).padding(5);
-        let bar = Bar::new(sender.clone(), 300).shared();
+        let bar = Bar::new(300, elm_cb!(sender, progress => MediaPlayerMessage::SetProgress(progress))).shared();
 
         let mut inner_box = WBox::new(Orientation::Vertical);
         let mut buttons = WBox::new(Orientation::Horizontal);
@@ -220,7 +220,7 @@ struct Bar {
     pub progress: f32,
     pub size: u32,
     bounds: Rect,
-    sender: Arc<mpsc::Sender<MediaPlayerMessage>>,
+    cb: Rc<dyn Fn(f32)>,
     pub margin: u32,
 }
 
@@ -229,10 +229,10 @@ impl Widget for Bar {
         let thickness = 2;
         let margin = 5;
         ctx.set_color(Color::RGB(0xdd, 0xdd, 0xdd));
-        let background = Rect::new(0, 0, self.size, thickness);
+        let background = Rect::new(0, margin, self.size, thickness);
         ctx.draw_rect(background);
         ctx.set_color(THEME.primary);
-        ctx.draw_rect(Rect::new(0, 0, (self.size as f32 * self.progress) as u32, thickness));
+        ctx.draw_rect(Rect::new(0, margin, (self.size as f32 * self.progress) as u32, thickness));
         ctx.claim(background + margin);
     }
     
@@ -244,7 +244,8 @@ impl Widget for Bar {
                     let click = pos.x;
                     let end = start + self.size;
                     let click_progress = click as f32 / (end - start) as f32;
-                    self.sender.send(MediaPlayerMessage::SetProgress(click_progress)).unwrap();
+                    let cb = self.cb.clone();
+                    cb(click_progress);
                     true
                 } else {
                     false
@@ -260,13 +261,13 @@ impl Widget for Bar {
 }
 
 impl Bar {
-    fn new(sender: Arc<mpsc::Sender<MediaPlayerMessage>>, size: u32) -> Self {
+    fn new<F>(size: u32, cb: F) -> Self where F: Fn(f32) + 'static {
         Self {
             progress: 0.0,
             size,
             bounds: Rect::zero(),
-            sender,
-            margin: 5,
+            cb: Rc::new(cb),
+            margin: 10,
         }
     }
 }
