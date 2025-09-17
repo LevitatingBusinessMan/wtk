@@ -16,6 +16,12 @@
 //! For example:
 //! 
 //! ```
+//! # use wtk::prelude::*;
+//! # use wtk::elm_cb;
+//! # use wtk::enclose;
+//! # use std::sync::mpsc;
+//! # let (sender, _receiver) = mpsc::channel();
+//! # enum CounterMessage { Increment };
 //! Button::new("+", elm_cb!(sender, _b => CounterMessage::Increment)).shared();
 //! ```
 //! 
@@ -31,6 +37,16 @@ use crate::prelude::*;
  * 
  * An example:
  * ```
+ * # use wtk::prelude::*;
+ * # use wtk::elm::*;
+ * # use std::sync::mpsc;
+ * # use std::cell::RefCell;
+ * # use std::rc::Rc;
+ * # pub enum CounterMessage{
+ * #     Increment,
+ * #     Decrement,
+ * # }
+ * 
  * pub struct Counter {
  *     count: i32,
  *     button_box: Rc<RefCell<WBox>>,
@@ -89,6 +105,12 @@ pub trait ElmModel{
 /// 
 /// For example:
 /// ```
+/// # use wtk::prelude::*;
+/// # use wtk::elm_cb;
+/// # use wtk::enclose;
+/// # enum CounterMessage { Increment }
+/// # use std::sync::mpsc;
+/// # let (sender, _receiver) = mpsc::channel();
 /// Button::new("+", elm_cb!(sender, _b => CounterMessage::Increment)).shared();
 /// ```
 /// 
@@ -113,7 +135,19 @@ pub trait ElmLoop {
     /// Don't forget that if your model is also your widget, the widget still needs to be added to the app to be drawn.
     /// 
     /// Example:
-    /// ```
+    /// ```no_run
+    /// # use wtk::prelude::*;
+    /// # pub struct Counter();
+    /// impl Counter { pub fn new() -> Self { Self {} } }
+    /// impl ElmModel for Counter {
+    ///     type Message = ();
+    ///     fn receiver(&mut self) -> &mut std::sync::mpsc::Receiver<<Self as wtk::elm::ElmModel>::Message> { todo!() }
+    ///     fn update<B>(&mut self, _: &mut wtk::app::App<B>, _: <Self as wtk::elm::ElmModel>::Message) where B: Backend { todo!() }
+    /// }
+    /// impl Widget for Counter {
+    ///     fn draw(&self, _: &mut DrawContext) { todo!() }
+    /// }
+    /// use wtk::elm::*;
     /// fn main() {
     ///     let mut app = App::<SDLBackend>::new("Counter go brrr");
     ///     let counter = Counter::new().shared();

@@ -2,7 +2,8 @@
 //! 
 //! Wtk is a simple widget toolkit.
 //! 
-//! ```
+//! ```no_run
+//! use wtk::prelude::*;
 //! fn main() {
 //!     let mut app = App::<SDLBackend>::new("WTK button example");
 //!     let button = Button::new("clickme", |b| {
