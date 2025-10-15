@@ -8,13 +8,13 @@ pub const DEFAULT: &'static Theme = &LIGHT;
 pub const LIGHT: Theme = Theme {
     background: Color::WHITE,
     primary: Color::BLACK,
-    interactive: Color::RGB(0xcc, 0xcc, 0xcc),
+    interactive: Color::rgb(0xcc, 0xcc, 0xcc),
 };
 
 pub const DARK: Theme = Theme {
-    background: Color::RGB(0x40, 0x40, 0x50),
+    background: Color::rgb(0x40, 0x40, 0x50),
     primary: Color::WHITE,
-    interactive: Color::RGB(0xcc, 0xcc, 0xcc),
+    interactive: Color::rgb(0xcc, 0xcc, 0xcc),
 };
 
 #[derive(Debug, Clone)]

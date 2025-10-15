@@ -1,7 +1,6 @@
 use mpris;
 use mpris::Player;
 use mpris::PlayerFinder;
-use wtk::elm;
 use wtk::elm_cb;
 use wtk::enclose;
 use wtk::prelude::*;
@@ -229,7 +228,7 @@ impl Widget for Bar {
     fn draw(&self, ctx: &mut DrawContext) {
         let thickness = 2;
         let margin = 5;
-        ctx.set_color(Color::RGB(0xdd, 0xdd, 0xdd));
+        ctx.set_color(Color::rgb(0xdd, 0xdd, 0xdd));
         let background = Rect::new(0, margin, self.size, thickness);
         ctx.draw_rect(background);
         ctx.set_color(THEME.primary);

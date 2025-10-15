@@ -1,5 +1,3 @@
-use std::cmp;
-
 use crate::{draw, prelude::*};
 use crate::{event::Event, widgets::SharedWidget};
 use crate::backends::Backend;

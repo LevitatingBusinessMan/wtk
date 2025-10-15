@@ -51,16 +51,16 @@ impl Into<Event> for sdl3::event::Event {
             Self::MouseButtonDown{ timestamp: _, window_id: _, which: _, mouse_btn, clicks: _, x, y }  => {
                 Event::MouseButtonDown { button: mouse_btn.into(), pos: Point::new(x as u32, y as u32)}
             },
-            Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {
+            Self::Window { timestamp: _, window_id: _, win_event: WindowEvent::Resized(w, h) } => {
                 Event::Resized(Size::new(w as u32, h as u32))
             },
-            Self::MouseMotion { timestamp, window_id, which, mousestate, x, y, xrel, yrel } => {
+            Self::MouseMotion { timestamp: _, window_id: _, which: _, mousestate: _, x, y, xrel: _, yrel: _ } => {
                 Event::MouseMove(Point::new(x as u32, y as u32))
             },
-            Self::MouseButtonUp { timestamp, window_id, which, mouse_btn, clicks: _, x, y } => {
+            Self::MouseButtonUp { timestamp: _, window_id: _, which: _, mouse_btn, clicks: _, x, y } => {
                 Event::MouseButtonUp { button: mouse_btn.into(), pos: Point::new(x as u32, y as u32)}
             },
-            Self::TextInput { timestamp, window_id, text } => {
+            Self::TextInput { timestamp: _, window_id: _, text } => {
                 Event::TextInput(text)
             },
             // Self::Window { timestamp, window_id, win_event: WindowEvent::Resized(w, h) } => {

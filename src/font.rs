@@ -32,14 +32,15 @@ static WTK_TEXT_SCALE: LazyLock<Option<f64>> = LazyLock::new(||
     std::env::var("WTK_TEXT_SCALE")
         .map(|e| e.parse().unwrap())
         .ok()
-    );
+);
 
 /// Get font scale
 pub fn scale() -> f64 {
-    #[cfg(feature = "xrdb")] 
-    {
-        return WTK_TEXT_SCALE.unwrap_or(XFT_DPI.unwrap_or(DEFAULT_SCALE))
+    #[cfg(feature = "xrdb")]
+    if let Some(scale) = WTK_TEXT_SCALE.or(*XFT_DPI) {
+        return scale;
     }
+
     WTK_TEXT_SCALE.unwrap_or(DEFAULT_SCALE)
 }
 

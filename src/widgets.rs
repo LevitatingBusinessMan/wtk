@@ -20,8 +20,8 @@ use crate::prelude::*;
 /// Base widget trait
 pub trait Widget {
     fn draw(&self, ctx: &mut DrawContext);
-    fn process_event(&mut self, e: &Event) -> bool { false }
-    fn set_bounds(&mut self, bounds: Rect) {  }
+    fn process_event(&mut self, _e: &Event) -> bool { false }
+    fn set_bounds(&mut self, _bounds: Rect) {  }
     //fn as_any(&self) -> &dyn Any;
     //fn as_any_mut(&mut self) -> &mut dyn Any;
 }

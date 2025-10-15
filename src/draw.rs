@@ -6,7 +6,7 @@
 //! wtk requires generics to do any backend interactions.
 //! 
 //! So the process is this, the widget interacts with [DrawContext] to create a list of [DrawCommand]s.
-//! These [DrawCommand] are then converted by [DrawContext::run_backend] to [DrawBackend] methods.
+//! These [DrawCommand]s are then converted by [DrawContext::run_backend] to [DrawBackend] methods.
 
 use std::{cmp, rc::Rc};
 
@@ -85,7 +85,7 @@ impl DrawContext {
                     max.width = cmp::max(max.width, rect.total().width);
                     max.height = cmp::max(max.height, rect.total().height);
                 },
-                DrawCommand::Color(color) => {},
+                DrawCommand::Color(_color) => {},
                 DrawCommand::Text(text, point) => {
                     let rect = point.with_size(font::text_size(text));
                     max.width = cmp::max(max.width, rect.total().width);

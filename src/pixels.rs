@@ -13,9 +13,9 @@ impl Into<Color> for (u8,u8,u8,u8) {
 }
 
 impl Color {
-    pub const fn RGB(r: u8, g: u8, b: u8) -> Self {
+    pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
         Color { r, g, b, a: 255}
     }
-    pub const BLACK: Color = Color::RGB(0, 0, 0);
-    pub const WHITE: Color = Color::RGB(0xff, 0xff, 0xff);
+    pub const BLACK: Color = Color::rgb(0, 0, 0);
+    pub const WHITE: Color = Color::rgb(0xff, 0xff, 0xff);
 }
