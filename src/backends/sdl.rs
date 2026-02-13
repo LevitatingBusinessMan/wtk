@@ -125,7 +125,7 @@ impl From<Rect> for sdl3::render::FRect {
 
 impl DrawBackend for Canvas<sdl3::video::Window> {
     fn draw_rect(&mut self, rect: Rect) {
-        self.draw_rect(rect.into()).unwrap();
+        self.draw_rect(rect).unwrap();
     }
 
     fn clear(&mut self) {

@@ -190,9 +190,9 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "sdl3"
-version = "0.15.1"
+version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27ecee228c5aaa187c8952d5708aaa8dbd2517ea69349eac4b3ed0ec37e09cdb"
+checksum = "dce0693cede7f7901e968e5539f87174d0fb5fac5d489a3e3be52b2b4a0b49c5"
 dependencies = [
  "bitflags",
  "lazy_static",
@@ -203,18 +203,18 @@ dependencies = [
 
 [[package]]
 name = "sdl3-image-sys"
-version = "0.2.1+SDL3-image-3.2.6"
+version = "0.6.1+SDL-image-3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd4172de07d32e495ce8aaddc9793c345143ba09ab0567555dc42b47315266c9"
+checksum = "f61a8cc9c72e2cab2e500752f513f65043ff1d36f994b90c7b423abcb796330d"
 dependencies = [
  "sdl3-sys",
 ]
 
 [[package]]
 name = "sdl3-sys"
-version = "0.5.12+SDL3-3.2.30"
+version = "0.6.0+SDL-3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78b9638d20441d9641bf479d5ec737a46e159549df3a03d1c09d6387f5adf128"
+checksum = "8361b0312462d2cf9c115fcbdf9cfceceef79d53faec3b50efd6447ac903eb23"
 
 [[package]]
 name = "strsim"
