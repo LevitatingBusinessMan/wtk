@@ -4,9 +4,9 @@ version = 4
 
 [[package]]
 name = "bitflags"
-version = "2.9.4"
+version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2261d10cca569e4643e526d8dc2e62e433cc8aba21ab764233731f8d369bf394"
+checksum = "812e12b5285cc515a9c72a5c1d3b6d46a19dac5acfef5265968c166106e31dd3"
 
 [[package]]
 name = "darling"
@@ -126,9 +126,9 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "libc"
-version = "0.2.177"
+version = "0.2.181"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
+checksum = "459427e2af2b9c839b132acb702a1c654d95e10f8c326bfc2ad11310e458b1c5"
 
 [[package]]
 name = "libdbus-sys"
@@ -203,18 +203,18 @@ dependencies = [
 
 [[package]]
 name = "sdl3-image-sys"
-version = "0.2.0+SDL3-image-3.2.4"
+version = "0.2.1+SDL3-image-3.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d92bd93ce75ca9b027474f90c788daf3b5ced8410ee3c1dcb478a10030bf162"
+checksum = "cd4172de07d32e495ce8aaddc9793c345143ba09ab0567555dc42b47315266c9"
 dependencies = [
  "sdl3-sys",
 ]
 
 [[package]]
 name = "sdl3-sys"
-version = "0.5.5+SDL3-3.2.22"
+version = "0.5.12+SDL3-3.2.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "488b4c68d9c0a450087a8b7c9dc6921483354127b0e60033d2d9b8f6a281331b"
+checksum = "78b9638d20441d9641bf479d5ec737a46e159549df3a03d1c09d6387f5adf128"
 
 [[package]]
 name = "strsim"
