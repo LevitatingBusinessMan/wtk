@@ -18,4 +18,7 @@ impl Color {
     }
     pub const BLACK: Color = Color::rgb(0, 0, 0);
     pub const WHITE: Color = Color::rgb(0xff, 0xff, 0xff);
+    pub const RED: Color = Color::rgb(0xff, 0x00, 0x00);
+    pub const GREEN: Color = Color::rgb(0x00, 0xff, 0x00);
+    pub const BLUE: Color = Color::rgb(0x00, 0x00, 0xff);
 }

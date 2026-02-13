@@ -145,6 +145,7 @@ impl DrawBackend for Canvas<sdl3::video::Window> {
         let texture_creator = self.texture_creator();
         let mut texture = texture_creator.load_texture_bytes(crate::font::MONOGRAM_PNG).unwrap();
         texture.set_scale_mode(sdl3::render::ScaleMode::Nearest);
+        texture.set_color_mod(self.draw_color().r, self.draw_color().g, self.draw_color().b);
         for c in text.chars() {
             self.copy(
                 &texture,

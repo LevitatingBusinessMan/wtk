@@ -69,8 +69,8 @@ impl Widget for Button {
 
         ctx.set_color(theme::THEME.interactive);
         ctx.fill_rect(Point::zero().with_size(button_size));
-        ctx.draw_text(&self.text, Point::new(self.padding, self.padding));
         ctx.set_color(theme::THEME.primary);
+        ctx.draw_text(&self.text, Point::new(self.padding, self.padding));
         ctx.draw_rect(Point::zero().with_size(button_size));
 
         if !self.pressed {

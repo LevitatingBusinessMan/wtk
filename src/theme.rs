@@ -1,9 +1,26 @@
-use std::sync::LazyLock;
+use std::cell::UnsafeCell;
 use crate::prelude::*;
 
-pub static THEME: LazyLock<Theme> = LazyLock::new(|| DEFAULT.clone());
+pub struct ThemeCell(UnsafeCell<Theme>);
 
-pub const DEFAULT: &'static Theme = &LIGHT;
+unsafe impl Sync for ThemeCell {}
+
+/// Update the theme. This may cause race conditions.
+pub fn set_theme(theme: Theme) {
+    unsafe { *THEME.0.get() = theme; }
+}
+
+impl std::ops::Deref for ThemeCell {
+    type Target = Theme;
+    
+    fn deref(&self) -> &Theme {
+        unsafe { &*self.0.get() }
+    }
+}
+
+pub static THEME: ThemeCell = ThemeCell(UnsafeCell::new(DEFAULT));
+
+pub const DEFAULT: Theme = LIGHT;
 
 pub const LIGHT: Theme = Theme {
     background: Color::WHITE,
