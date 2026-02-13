@@ -104,7 +104,7 @@ impl ElmModel for MediaPlayer {
         &mut self.receiver
     }
 
-    fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) where B: Backend {
+    fn update<B>(&mut self, _app: &mut App<B>, msg: Self::Message) where B: Backend {
         println!("{msg:?}");
         match msg {
                 MediaPlayerMessage::Previous => {

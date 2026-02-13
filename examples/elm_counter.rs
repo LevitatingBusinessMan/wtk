@@ -1,5 +1,4 @@
 extern crate wtk;
-use wtk::draw;
 use wtk::elm::ElmModel;
 use wtk::elm::ElmLoop;
 use wtk::elm_cb;
