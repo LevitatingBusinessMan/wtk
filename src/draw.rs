@@ -55,18 +55,8 @@ impl DrawContext {
     pub fn zero_point(&self) -> Point {
         self.zero_point
     }
-    pub(crate) fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
-        for command in &self.commands {
-            match command {
-                DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point() + *rect),
-                DrawCommand::Color(color) => backend.set_color(*color),
-                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point() + *point),
-                DrawCommand::Claim(_) => {},
-                DrawCommand::FillRect(rect) => backend.fill_rect(self.zero_point() + *rect),
-            }
-        }
-    }
-    pub(crate) fn new(pos: Point) -> Self {
+
+    pub fn new(pos: Point) -> Self {
         Self {
             zero_point: pos,
             commands: vec![
@@ -74,9 +64,10 @@ impl DrawContext {
             ],
         }
     }
+
     /// The bounds of all the combined draw commands,
     /// used to generate the next position in the layout.
-    pub(crate) fn bounds(&self) -> Rect {
+    pub fn bounds(&self) -> Rect {
         // the maximum drawpoint reached from the zero point
         let mut max = Size::new(0, 0);
         for command in &self.commands {
@@ -103,6 +94,54 @@ impl DrawContext {
         }
         self.zero_point.with_size(max)
     }
+    
+    /// For drawing many widgets at ones. This may be used by container like widgets.
+    /// Child widgets each get a DrawContext of which the commands are merged with the parents.
+    pub fn draw_widgets(&mut self, orientation: Orientation, padding: u32,  at: Option<Point>, widgets: &[SharedWidget]) {
+        // the cursor is where we start drawing the next widget
+        let mut cursor = at.map_or(self.zero_point(), |at| at + self.zero_point());
+        for widget in widgets {
+            let mut child_ctx = DrawContext::new(cursor);
+            widget.borrow().draw(&mut child_ctx);
+            let bounds = child_ctx.bounds();
+            widget.borrow_mut().set_bounds(bounds);
+            match orientation {
+                Orientation::Horizontal => cursor.x += bounds.width + padding,
+                Orientation::Vertical => cursor.y += bounds.height + padding,
+            }
+            self.merge(child_ctx);
+        }
+    }
+    
+    /// empty drawing operating for increasing the claimed bounds
+    pub fn claim(&mut self, rect: Rect) {
+        self.commands.push(DrawCommand::Claim(rect));
+    } 
+}
+
+/// Internal methods for a [DrawContext]. May be exposed manually via this trait.
+pub trait DrawContextInternal {
+    /// Merge the commands of another [DrawContext] into this one.
+    fn merge(&mut self, ctx: DrawContext);
+    /// Execute all draw commands using a [DrawBackend]. 
+    fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend;
+    /// Update the zero point. This is may lead to unexpected bugs,
+    /// be careful not to mess up the bounds information for the widgets.
+    fn set_zero_point(&mut self, point: Point);
+}
+
+impl DrawContextInternal for DrawContext {
+    fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
+        for command in &self.commands {
+            match command {
+                DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point() + *rect),
+                DrawCommand::Color(color) => backend.set_color(*color),
+                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point() + *point),
+                DrawCommand::Claim(_) => {},
+                DrawCommand::FillRect(rect) => backend.fill_rect(self.zero_point() + *rect),
+            }
+        }
+    }
     /// Merge the commands of another [DrawContext] into this one.
     fn merge(&mut self, ctx: DrawContext) {
         if ctx.zero_point() < self.zero_point() {
@@ -119,26 +158,7 @@ impl DrawContext {
             });
         }
     }
-    /// empty drawing operating for increasing the claimed bounds
-    pub fn claim(&mut self, rect: Rect) {
-        self.commands.push(DrawCommand::Claim(rect));
-    } 
-}
-
-/// For drawing many widgets using a drawcontext, for use by the app internally and by container like widgets.
-/// Child widgets each get a DrawContext of which the commands are merged with the parents.
-pub fn draw_widgets(ctx: &mut DrawContext, orientation: Orientation, padding: u32, widgets: &[SharedWidget], at: Option<Point>) {
-    // the cursor is where we start drawing the next widget
-    let mut cursor = at.map_or(ctx.zero_point(), |at| at + ctx.zero_point());
-    for widget in widgets {
-        let mut child_ctx = DrawContext::new(cursor);
-        widget.borrow().draw(&mut child_ctx);
-        let bounds = child_ctx.bounds();
-        widget.borrow_mut().set_bounds(bounds);
-        match orientation {
-            Orientation::Horizontal => cursor.x += bounds.width + padding,
-            Orientation::Vertical => cursor.y += bounds.height + padding,
-        }
-        ctx.merge(child_ctx);
+    fn set_zero_point(&mut self, point: Point) {
+        self.zero_point = point;
     }
 }

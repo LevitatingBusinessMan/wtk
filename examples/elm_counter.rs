@@ -41,10 +41,10 @@ impl Counter {
 
 impl Widget for Counter {
     fn draw(&self, ctx: &mut DrawContext) {
-        draw::draw_widgets(ctx, Orientation::Vertical, 6, &vec![
+        ctx.draw_widgets(Orientation::Vertical, 6, None, &vec![
             self.counter_label.clone() as SharedWidget,
             self.button_box.clone() as SharedWidget,
-        ], None);
+        ]);
     }
     
     fn process_event(&mut self, e: &Event) -> bool { 

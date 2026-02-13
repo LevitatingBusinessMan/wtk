@@ -14,6 +14,13 @@
 //! }
 //! ```
 //! 
+//! ## Embedding
+//! 
+//! You don't need to use [App], you may embed wtk by directly utilizing a [DrawBackend]. See the `embedded.rs` example.
+//! 
+//! [App]: app:App
+//! [DrawBackend]: draw:DrawBackend
+//! 
 pub mod widgets;
 pub mod rect;
 pub mod event;

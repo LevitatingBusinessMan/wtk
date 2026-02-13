@@ -1,11 +1,12 @@
 use crate::{draw, prelude::*};
 use crate::{event::Event, widgets::SharedWidget};
 use crate::backends::Backend;
-
+use crate::draw::DrawContextInternal;
 
 pub struct App<B> where B: Backend {
     widgets: Vec<SharedWidget>,
     backend: B,
+    size: Size,
     pub quit: bool,
 }
 
@@ -14,6 +15,7 @@ impl<B> App<B> where B: Backend {
         App { 
             widgets: vec![],
             backend: B::init(title),
+            size: Size::zero(),
             quit: false,
         }
     }
@@ -31,9 +33,7 @@ impl<B> App<B> where B: Backend {
             _ => {},
         }
         for widget in &self.widgets {
-            if widget.borrow_mut().process_event(e) {
-                draw = true;
-            }
+            draw |= widget.borrow_mut().process_event(e);
         }
         draw
     }
@@ -87,9 +87,13 @@ impl<B> App<B> where B: Backend {
         backend.clear();
         let padding = draw::DEFAULT_PADDING;
         let mut ctx = DrawContext::new(Point::new(padding, padding));
-        draw::draw_widgets(&mut ctx, Orientation::Vertical, draw::DEFAULT_PADDING, &self.widgets, None);
+        ctx.draw_widgets(Orientation::Vertical, draw::DEFAULT_PADDING, None, &self.widgets);
         ctx.run_backend(backend);
         backend.present();
-        self.backend.resize(ctx.bounds().size() + padding * 2);
+        let size = ctx.bounds().size();
+        if self.size != size {
+            self.size = size;
+            self.backend.resize(size + padding * 2);
+        }
     }
 }

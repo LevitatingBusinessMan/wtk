@@ -17,6 +17,8 @@ pub use crate::event::input::MouseButton;
 pub use crate::font;
 pub use crate::theme::Theme;
 pub use crate::widgets::Hider;
+pub use crate::widgets::SharedWidget;
+pub use crate::widgets::Entry;
 
 #[cfg(feature = "sdl3")]
 pub use crate::backends::SDLBackend;
