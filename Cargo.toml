@@ -18,7 +18,7 @@ elm = []
 
 [dependencies]
 libc = "0.2.175"
-sdl3 = { version = "0", features = ["build-from-source-static", "image"], optional = true }
+sdl3 = { version = "0", features = ["image"], optional = true }
 xrdb = { version = "0.1.1", optional = true }
 
 [dev-dependencies]
