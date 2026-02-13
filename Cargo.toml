@@ -1,6 +1,6 @@
 [package]
 name = "wtk"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2024"
 authors = ["Rein Fernhout"]
 description = "Simple widget toolkit"
@@ -18,7 +18,7 @@ elm = []
 
 [dependencies]
 libc = "0.2.175"
-sdl3 = { version = "0.17", features = ["image"], optional = true }
+sdl3 = { version = "0", features = ["image"], optional = true }
 xrdb = { version = "0.1.1", optional = true }
 
 [dev-dependencies]
