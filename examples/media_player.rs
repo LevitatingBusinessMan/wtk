@@ -59,6 +59,7 @@ impl MediaPlayer {
         buttons.add_widget(previous_button.shared());
         buttons.add_widget(play_pause_button.shared());
         buttons.add_widget(next_button.shared());
+        let buttons = Centered::new(buttons.shared(), Orientation::Horizontal, 300);
 
         let player_list = WBox::new(Orientation::Vertical);
         let player_list = Hider::<WBox>::new(player_list, true).shared();
@@ -219,7 +220,6 @@ struct Bar {
     /// precentage
     pub progress: f32,
     pub size: u32,
-    bounds: Rect,
     cb: Rc<dyn Fn(f32)>,
     pub margin: u32,
 }
@@ -239,8 +239,8 @@ impl Widget for Bar {
     fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
         match e {
             Event::MouseButtonDown { button, pos } => {
-                if matches!(button, MouseButton::Left) && pos.is_in(self.bounds) {
-                    let start = self.bounds.x + self.margin;
+                if matches!(button, MouseButton::Left) && pos.is_in(bounds) {
+                    let start = bounds.x + self.margin;
                     let click = pos.x;
                     let end = start + self.size;
                     let click_progress = click as f32 / (end - start) as f32;
@@ -261,7 +261,6 @@ impl Bar {
         Self {
             progress: 0.0,
             size,
-            bounds: Rect::zero(),
             cb: Rc::new(cb),
             margin: 10,
         }

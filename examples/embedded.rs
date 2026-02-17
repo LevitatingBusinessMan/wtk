@@ -1,11 +1,10 @@
 //! This example uses SDL3 to render a triangle and then draw widgets over it using wtk
-use std::cell::Cell;
-
 use sdl3::render::{FPoint, Vertex, VertexIndices};
 use wtk::prelude::*;
 use wtk::draw::DrawContextInternal;
 use sdl3::pixels::FColor;
 use sdl3;
+use wtk::widgets::ChildWidget;
 
 fn main() {
     let sdl_context = sdl3::init().unwrap();
@@ -14,10 +13,11 @@ fn main() {
         .build()
         .unwrap()
         .into_canvas();
-    let widgets: Vec<(SharedWidget, Cell<Rect>)> = vec![
+
+    let widgets: Vec<ChildWidget> = vec![
         Button::new("foo", |b| { b.set_text("clicked"); }).shared() as SharedWidget,
         Button::new("bar", |b| { b.set_text("clicked"); }).shared() as SharedWidget,
-    ].into_iter().map(|w| (w, Cell::new(Rect::zero()))).collect();
+    ].into_iter().map(ChildWidget::new).collect();
     
 
     let mut event_pump = sdl_context.event_pump().unwrap();
@@ -59,9 +59,9 @@ fn main() {
                 Event::Quit => break 'main,
                 _ => {}
             }
-            for (widget, rect) in &widgets {
-                let abs_bounds = wtk_origin + rect.get();
-                draw |= widget.borrow_mut().process_event(&e, abs_bounds);
+            for child in &widgets {
+                let abs_bounds = wtk_origin + child.bounds.get();
+                draw |= child.widget.borrow_mut().process_event(&e, abs_bounds);
             }
         }
     }

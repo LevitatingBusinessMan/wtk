@@ -13,7 +13,7 @@ pub use hider::Hider;
 pub mod centered;
 pub use centered::Centered;
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use crate::event::Event;
@@ -24,6 +24,18 @@ pub trait Widget {
     fn draw(&self, ctx: &mut DrawContext);
     /// Pass en event to the widget. The bounds tells the widget its absolute location.
     fn process_event(&mut self, _e: &Event, _bounds: Rect) -> bool { false }
+}
+
+/// Widget with bounds tracking for use in widget containers
+pub struct ChildWidget {
+    pub widget: SharedWidget,
+    pub bounds: Cell<Rect>,
+}
+
+impl ChildWidget {
+    pub fn new(widget: SharedWidget) -> Self {
+        Self { widget, bounds: Cell::new(Rect::zero()) }
+    }
 }
 
 pub type SharedWidget = Rc<RefCell<dyn Widget>>;

@@ -14,9 +14,9 @@
 //! If you do want to do so, you must update the bounds information for each moved widget.
 //! This is how the [Centered] widget works.
 
-use std::{cell::Cell, cmp, rc::Rc};
+use std::{cmp, rc::Rc};
 
-use crate::{font, prelude::*, rect::Orientation, theme, widgets::SharedWidget};
+use crate::{font, prelude::*, rect::Orientation, theme, widgets::{ChildWidget}};
 
 pub const DEFAULT_PADDING: u32 = 5;
 
@@ -104,13 +104,13 @@ impl DrawContext {
     /// For drawing many widgets at ones. This may be used by container like widgets.
     /// Child widgets each get a DrawContext of which the commands are merged with the parents.
     /// Each widget has a corresponding Cell in which the relative bounds are stored.
-    pub fn draw_widgets(&mut self, orientation: Orientation, padding: u32, at: Option<Point>, widgets: &[(SharedWidget, Cell<Rect>)]) {
+    pub fn draw_widgets(&mut self, orientation: Orientation, padding: u32, at: Option<Point>, widgets: &[ChildWidget]) {
         let mut cursor = at.unwrap_or(Point::zero());
-        for (widget, rect) in widgets {
+        for child in widgets {
             let mut child_ctx = DrawContext::new(self.zero_point() + cursor);
-            widget.borrow().draw(&mut child_ctx);
+            child.widget.borrow().draw(&mut child_ctx);
             let bounds = child_ctx.bounds();
-            rect.set(Rect::new(cursor.x, cursor.y, bounds.width, bounds.height));
+            child.bounds.set(Rect::new(cursor.x, cursor.y, bounds.width, bounds.height));
             match orientation {
                 Orientation::Horizontal => cursor.x += bounds.width + padding,
                 Orientation::Vertical => cursor.y += bounds.height + padding,

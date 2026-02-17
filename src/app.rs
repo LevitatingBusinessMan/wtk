@@ -1,12 +1,11 @@
-use std::cell::Cell;
-
+use crate::widgets::ChildWidget;
 use crate::{draw, prelude::*};
 use crate::{event::Event, widgets::SharedWidget};
 use crate::backends::Backend;
 use crate::draw::DrawContextInternal;
 
 pub struct App<B> where B: Backend {
-    widgets: Vec<(SharedWidget, Cell<Rect>)>,
+    widgets: Vec<ChildWidget>,
     backend: B,
     size: Size,
     pub quit: bool,
@@ -22,7 +21,7 @@ impl<B> App<B> where B: Backend {
         }
     }
     pub fn add_widget(&mut self, widget: SharedWidget) {
-        self.widgets.push((widget, Cell::new(Rect::zero())));
+        self.widgets.push(ChildWidget::new(widget));
     }
     pub fn process_event(&mut self, e: &Event) -> bool {
         let mut draw = false;
@@ -34,8 +33,8 @@ impl<B> App<B> where B: Backend {
             Event::Resized(_) => { draw = true },
             _ => {},
         }
-        for (widget, bounds) in &self.widgets {
-            draw |= widget.borrow_mut().process_event(e, bounds.get());
+        for child in &self.widgets {
+            draw |= child.widget.borrow_mut().process_event(e, child.bounds.get());
         }
         draw
     }
