@@ -1,6 +1,6 @@
 [package]
 name = "wtk"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2024"
 authors = ["Rein Fernhout"]
 description = "Simple widget toolkit"
