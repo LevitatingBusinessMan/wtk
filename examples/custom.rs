@@ -6,7 +6,7 @@ impl Widget for MousePosWidget {
     fn draw(&self, ctx: &mut DrawContext) {
         ctx.draw_text(format!("mouse x: {} y: {}", self.0.x, self.0.y), Point::zero());
     }
-    fn process_event(&mut self, event: &Event) -> bool {
+    fn process_event(&mut self, event: &Event, bounds: Rect) -> bool {
         if let Event::MouseMove(pos) = event {
             self.0 = *pos;
             true

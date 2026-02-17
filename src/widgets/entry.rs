@@ -37,16 +37,16 @@ impl Widget for Entry {
         }
     }
     
-    fn process_event(&mut self, event: &Event) -> bool {
+    fn process_event(&mut self, event: &Event, bounds: Rect) -> bool {
         match event {
             Event::MouseButtonDown { button: _b, pos } => {
-                let clicked = pos.is_in(self.bounds);
+                let clicked = pos.is_in(bounds);
                 let focus_prev = self.focus;
                 self.set_focus(clicked);
                 clicked || focus_prev != self.focus
             },
             Event::MouseButtonUp { button: _b, pos } => {
-                let clicked = pos.is_in(self.bounds);
+                let clicked = pos.is_in(bounds);
                 let focus_prev = self.focus;
                 self.set_focus(clicked);
                 clicked || focus_prev != self.focus
@@ -61,9 +61,5 @@ impl Widget for Entry {
             },
             _ => false,
         }
-    }
-
-    fn set_bounds(&mut self, bounds: Rect) {
-        self.bounds = bounds;
     }
 }

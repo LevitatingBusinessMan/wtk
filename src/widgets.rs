@@ -10,6 +10,8 @@ pub mod entry;
 pub use entry::Entry;
 pub mod hider;
 pub use hider::Hider;
+pub mod centered;
+pub use centered::Centered;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -20,10 +22,8 @@ use crate::prelude::*;
 /// Base widget trait
 pub trait Widget {
     fn draw(&self, ctx: &mut DrawContext);
-    fn process_event(&mut self, _e: &Event) -> bool { false }
-    fn set_bounds(&mut self, _bounds: Rect) {  }
-    //fn as_any(&self) -> &dyn Any;
-    //fn as_any_mut(&mut self) -> &mut dyn Any;
+    /// Pass en event to the widget. The bounds tells the widget its absolute location.
+    fn process_event(&mut self, _e: &Event, _bounds: Rect) -> bool { false }
 }
 
 pub type SharedWidget = Rc<RefCell<dyn Widget>>;

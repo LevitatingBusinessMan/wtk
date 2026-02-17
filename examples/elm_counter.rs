@@ -17,7 +17,7 @@ pub enum CounterMessage{
 
 pub struct Counter {
     count: i32,
-    button_box: Rc<RefCell<WBox>>,
+    inner: WBox,
     counter_label: Rc<RefCell<Label>>,
     receiver: mpsc::Receiver<CounterMessage>,
 }
@@ -26,28 +26,22 @@ impl Counter {
     fn new() -> Counter {
         let (sender, receiver) = mpsc::channel();
         let dec_button = Button::new("-", elm_cb!(sender, _b => CounterMessage::Decrement)).shared();
-        let inc_buton = Button::new("+", elm_cb!(sender, _b => CounterMessage::Increment)).shared();
-        let button_box = WBox::with(Orientation::Horizontal, vec![dec_button, inc_buton]).shared();
+        let inc_button = Button::new("+", elm_cb!(sender, _b => CounterMessage::Increment)).shared();
         let counter_label = Label::new("Count: 0").shared();
-        Counter {
-            count: 0,
-            button_box,
-            counter_label,
-            receiver,
-        }
+        let mut inner = WBox::new(Orientation::Vertical);
+        inner.set_padding(6);
+        inner.add_widget(counter_label.clone());
+        inner.add_widget(WBox::with(Orientation::Horizontal, vec![dec_button, inc_button]).shared());
+        Counter { count: 0, inner, counter_label, receiver }
     }
 }
 
 impl Widget for Counter {
     fn draw(&self, ctx: &mut DrawContext) {
-        ctx.draw_widgets(Orientation::Vertical, 6, None, &vec![
-            self.counter_label.clone() as SharedWidget,
-            self.button_box.clone() as SharedWidget,
-        ]);
+        self.inner.draw(ctx);
     }
-    
-    fn process_event(&mut self, e: &Event) -> bool { 
-        self.button_box.borrow_mut().process_event(e)
+    fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
+        self.inner.process_event(e, bounds)
     }
 }
 

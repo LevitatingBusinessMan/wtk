@@ -56,6 +56,12 @@ impl Point {
     pub fn is_in(self, rect: Rect) -> bool {
         return self.x >= rect.x && self.x < rect.total().width && self.y >= rect.y && self.y < rect.total().height
     }
+    pub fn abs_diff(self, rhs: Point) -> Point {
+        Point {
+            x: self.x.abs_diff(rhs.x),
+            y: self.y.abs_diff(rhs.y),
+        }
+    }
 }
 
 impl ops::Add<Rect> for Point {

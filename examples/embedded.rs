@@ -1,4 +1,6 @@
 //! This example uses SDL3 to render a triangle and then draw widgets over it using wtk
+use std::cell::Cell;
+
 use sdl3::render::{FPoint, Vertex, VertexIndices};
 use wtk::prelude::*;
 use wtk::draw::DrawContextInternal;
@@ -12,22 +14,18 @@ fn main() {
         .build()
         .unwrap()
         .into_canvas();
-    let widgets = vec![
-        Button::new("foo", |b| {
-            b.set_text("clicked"); 
-        }).shared()  as SharedWidget,
-        Button::new("bar", |b| {
-            b.set_text("clicked"); 
-        }).shared()  as SharedWidget
-    ];
-    let mut ctx = wtk::draw::DrawContext::new(Point::zero());
-    // initial draw to get boundary information
-    ctx.draw_widgets(Orientation::Vertical, 0, None, &widgets);
-    let mut bounds = ctx.bounds();
+    let widgets: Vec<(SharedWidget, Cell<Rect>)> = vec![
+        Button::new("foo", |b| { b.set_text("clicked"); }).shared() as SharedWidget,
+        Button::new("bar", |b| { b.set_text("clicked"); }).shared() as SharedWidget,
+    ].into_iter().map(|w| (w, Cell::new(Rect::zero()))).collect();
+    
+
     let mut event_pump = sdl_context.event_pump().unwrap();
     let mut draw = true;
+    let mut wtk_origin = Point::zero();
     'main: loop {
         if draw {
+            draw = false;
             canvas.set_draw_color(sdl3::pixels::Color::RGB(255, 255, 255));
             canvas.render_geometry(&[
                 Vertex {
@@ -46,13 +44,13 @@ fn main() {
                     tex_coord: FPoint::new(0.0, 0.0),
                 },
             ], None, VertexIndices::Sequential).unwrap();
-            let size = bounds.size();
-            let mut ctx = wtk::draw::DrawContext::new(Point::new(400 - size.width / 2, 300 - size.height / 2));
+            
+            // here we draw WTK widgets
+            let mut ctx = wtk::draw::DrawContext::new(Point::zero());
             ctx.draw_widgets(Orientation::Vertical, 0, None, &widgets);
-            if bounds != ctx.bounds() {
-                bounds = ctx.bounds();
-                draw = true;
-            }
+            let size = ctx.bounds().size();
+            wtk_origin = Point::new(400 - size.width / 2, 300 - size.height / 2);
+            ctx.set_zero_point(wtk_origin);
             ctx.run_backend(&mut canvas);
             canvas.present();
         }
@@ -61,8 +59,9 @@ fn main() {
                 Event::Quit => break 'main,
                 _ => {}
             }
-            for widget in &widgets {
-                draw |= widget.borrow_mut().process_event(&e);
+            for (widget, rect) in &widgets {
+                let abs_bounds = wtk_origin + rect.get();
+                draw |= widget.borrow_mut().process_event(&e, abs_bounds);
             }
         }
     }

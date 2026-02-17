@@ -177,8 +177,8 @@ impl Widget for MediaPlayer {
     fn draw(&self, ctx: &mut DrawContext) {
         self.inner_box.draw(ctx);
     }
-    fn process_event(&mut self, e: &Event) -> bool {
-        self.inner_box.process_event(e)
+    fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
+        self.inner_box.process_event(e, bounds)
     }
 }
 
@@ -236,7 +236,7 @@ impl Widget for Bar {
         ctx.claim(background + margin);
     }
     
-    fn process_event(&mut self, e: &Event) -> bool {
+    fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
         match e {
             Event::MouseButtonDown { button, pos } => {
                 if matches!(button, MouseButton::Left) && pos.is_in(self.bounds) {
@@ -253,10 +253,6 @@ impl Widget for Bar {
             },
             _ => false,
         }
-    }
-    
-    fn set_bounds(&mut self, bounds: Rect) {
-        self.bounds = bounds;
     }
 }
 

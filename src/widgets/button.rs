@@ -37,17 +37,17 @@ impl Button {
 
 impl Widget for Button {
 
-    fn process_event(&mut self, e: &Event) -> bool {
+    fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
         match e {
             Event::MouseButtonDown { button: _b, pos } => {
-                if pos.is_in(self.bounds) && matches!(_b, MouseButton::Left) {
+                if pos.is_in(bounds) && matches!(_b, MouseButton::Left) {
                     self.pressed = true;
                     return true;
                 }
             },
             Event::MouseButtonUp { button: _b, pos } => {
                 if matches!(_b, MouseButton::Left) {
-                    if let Some(cb) = &self.cb && self.pressed && pos.is_in(self.bounds) {
+                    if let Some(cb) = &self.cb && self.pressed && pos.is_in(bounds) {
                         let cb = cb.clone();
                         cb(self);
                     }
@@ -79,11 +79,4 @@ impl Widget for Button {
             ctx.draw_rect(Point::zero().with_size(button_size + 2));
         }
     }
-    
-    fn set_bounds(&mut self, bounds: Rect) {
-        self.bounds = bounds;
-    }
-
-    // fn as_any_mut(&mut self) -> &mut dyn std::any::Any { self }
-    // fn as_any(&self) -> &dyn std::any::Any { self }
 }

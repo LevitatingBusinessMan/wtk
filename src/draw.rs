@@ -7,8 +7,14 @@
 //! 
 //! So the process is this, the widget interacts with [DrawContext] to create a list of [DrawCommand]s.
 //! These [DrawCommand]s are then converted by [DrawContext::run_backend] to [DrawBackend] methods.
+//! 
+//! Some Widgets need to be aware of their bounds (the area they occupy) so they can respond to the cursor.
+//! This information is typically given to them during their draw time.
+//! This means that currently, you cannot move a [DrawContext] draw location.
+//! If you do want to do so, you must update the bounds information for each moved widget.
+//! This is how the [Centered] widget works.
 
-use std::{cmp, rc::Rc};
+use std::{cell::Cell, cmp, rc::Rc};
 
 use crate::{font, prelude::*, rect::Orientation, theme, widgets::SharedWidget};
 
@@ -97,14 +103,14 @@ impl DrawContext {
     
     /// For drawing many widgets at ones. This may be used by container like widgets.
     /// Child widgets each get a DrawContext of which the commands are merged with the parents.
-    pub fn draw_widgets(&mut self, orientation: Orientation, padding: u32,  at: Option<Point>, widgets: &[SharedWidget]) {
-        // the cursor is where we start drawing the next widget
-        let mut cursor = at.map_or(self.zero_point(), |at| at + self.zero_point());
-        for widget in widgets {
-            let mut child_ctx = DrawContext::new(cursor);
+    /// Each widget has a corresponding Cell in which the relative bounds are stored.
+    pub fn draw_widgets(&mut self, orientation: Orientation, padding: u32, at: Option<Point>, widgets: &[(SharedWidget, Cell<Rect>)]) {
+        let mut cursor = at.unwrap_or(Point::zero());
+        for (widget, rect) in widgets {
+            let mut child_ctx = DrawContext::new(self.zero_point() + cursor);
             widget.borrow().draw(&mut child_ctx);
             let bounds = child_ctx.bounds();
-            widget.borrow_mut().set_bounds(bounds);
+            rect.set(Rect::new(cursor.x, cursor.y, bounds.width, bounds.height));
             match orientation {
                 Orientation::Horizontal => cursor.x += bounds.width + padding,
                 Orientation::Vertical => cursor.y += bounds.height + padding,
@@ -142,12 +148,11 @@ impl DrawContextInternal for DrawContext {
             }
         }
     }
-    /// Merge the commands of another [DrawContext] into this one.
     fn merge(&mut self, ctx: DrawContext) {
         if ctx.zero_point() < self.zero_point() {
             panic!()
         }
-        let diff = ctx.zero_point() - self.zero_point();
+        let diff = ctx.zero_point().abs_diff(self.zero_point);
         for command in ctx.commands {
             self.commands.push(match command {
                 DrawCommand::Rect(rect) => DrawCommand::Rect(diff + rect),

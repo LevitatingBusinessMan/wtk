@@ -1,11 +1,12 @@
+use std::cell::Cell;
+
 use crate::prelude::*;
 use super::SharedWidget;
 use crate::draw;
 
 /// Widget Box for grouping widgets
 pub struct WBox {
-    widgets: Vec<SharedWidget>,
-    orientation: Orientation,
+    widgets: Vec<(SharedWidget, Cell<Rect>)>,    orientation: Orientation,
     padding: u32,
     margin: u32,
     border: bool,
@@ -23,7 +24,7 @@ impl WBox {
     }
     pub fn with(orientation: Orientation, widgets: Vec<SharedWidget>) -> Self {
         Self {
-            widgets,
+            widgets: widgets.into_iter().map(|w| (w, Cell::new(Rect::zero()))).collect(),
             orientation,
             border: false,
             padding: draw::DEFAULT_PADDING,
@@ -31,7 +32,7 @@ impl WBox {
         }
     }
     pub fn add_widget(&mut self, widget: SharedWidget) -> &mut Self {
-        self.widgets.push(widget);
+        self.widgets.push((widget, Cell::new(Rect::zero())));
         self
     }
     pub fn set_orientation(&mut self, orientation: Orientation) -> &mut Self {
@@ -64,21 +65,12 @@ impl Widget for WBox {
             ctx.draw_rect(Rect::new(0, 0, bounds.width, bounds.height));
         }
     }
-    fn process_event(&mut self, event: &Event) -> bool { 
+    fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
         let mut draw = false;
-        for widget in &self.widgets {
-            draw |= widget.borrow_mut().process_event(event)
+        for (widget, rect) in &self.widgets {
+            let child_bounds = bounds.point() + rect.get();
+            draw |= widget.borrow_mut().process_event(e, child_bounds);
         }
         draw
-    }
-    fn set_bounds(&mut self, bounds: Rect) {
-        // when drawing we set the childs bounds, but in the case
-        // our parent did not draw us, we receive empty bounds
-        // and should set this on our children as well
-        if bounds.size() == Size::zero() {
-            for widget in &self.widgets {
-                widget.borrow_mut().set_bounds(bounds);
-            }
-        }
     }
 }

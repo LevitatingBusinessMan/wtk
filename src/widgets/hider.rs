@@ -31,12 +31,11 @@ impl<T> Widget for Hider<T> where T: Widget {
             self.inner.draw(ctx);
         }
     }
-
-    fn process_event(&mut self, e: &Event) -> bool {
-        self.inner.process_event(e)
-    }
-
-    fn set_bounds(&mut self, bounds: Rect) {
-        self.inner.set_bounds(bounds);
+    fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
+        if !self.hidden {
+            self.inner.process_event(e, bounds)
+        } else {
+            false
+        }
     }
 }
