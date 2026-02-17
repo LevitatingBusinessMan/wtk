@@ -39,6 +39,7 @@ impl ChildWidget {
 }
 
 pub type SharedWidget = Rc<RefCell<dyn Widget>>;
+//pub type Shared<T> = Rc<RefCell<T>>;
 
 pub trait IntoShared<T> {
     fn shared(self) -> Rc<RefCell<T>>;

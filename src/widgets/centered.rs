@@ -6,12 +6,15 @@ use crate::{draw::DrawContextInternal, prelude::*, widgets::ChildWidget};
 pub struct Centered {
     pub inner: ChildWidget,
     orientation: Orientation,
-    length: usize,
+    length: u32,
 }
 
 impl Centered {
-    pub fn new(inner: SharedWidget, orientation: Orientation, length: usize) -> Self {
+    pub fn new(inner: SharedWidget, orientation: Orientation, length: u32) -> Self {
         Self { inner: ChildWidget::new(inner), orientation, length }
+    }
+    pub fn set_length(&mut self, length: u32) {
+        self.length = length;
     }
 }
 
@@ -24,7 +27,7 @@ impl Widget for Centered {
         let bounds_length = match self.orientation {
             Orientation::Horizontal => child_bounds.width,
             Orientation::Vertical => child_bounds.height,
-        } as usize;
+        };
         
         if bounds_length < self.length {
             let add = (self.length - bounds_length) / 2;
