@@ -33,8 +33,9 @@ impl<B> App<B> where B: Backend {
             Event::Resized(_) => { draw = true },
             _ => {},
         }
+        let padding = Point::new(draw::DEFAULT_PADDING, draw::DEFAULT_PADDING);
         for child in &self.widgets {
-            draw |= child.widget.borrow_mut().process_event(e, child.bounds.get());
+            draw |= child.widget.borrow_mut().process_event(e, padding + child.bounds.get());
         }
         draw
     }
