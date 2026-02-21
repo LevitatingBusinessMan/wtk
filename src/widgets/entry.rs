@@ -6,12 +6,11 @@ pub struct Entry {
     text: String,
     focus: bool,
     min_width: u32,
-    bounds: Rect,
 }
 
 impl Entry {
     pub fn new() -> Self {
-        Self { text: String::new(), focus: false, min_width: 80, bounds: Rect::zero() }
+        Self { text: String::new(), focus: false, min_width: 80 }
     }
     pub fn set_focus(&mut self, focus: bool) {
         self.focus = focus;

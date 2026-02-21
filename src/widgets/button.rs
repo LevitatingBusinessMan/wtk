@@ -6,7 +6,6 @@ use crate::theme;
 pub struct Button {
     text: String,
     cb: Option<Rc<dyn Fn(&mut Button)>>,
-    bounds: Rect,
     pressed: bool,
     padding: u32,
 }
@@ -16,7 +15,6 @@ impl Button {
         Button {
             text: text.into(),
             cb: Some(Rc::new(cb)),
-            bounds: Rect::zero(),
             pressed: false,
             padding: 6,
         }

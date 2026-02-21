@@ -18,6 +18,10 @@
 //! 
 //! You don't need to use [App], you may embed wtk by directly utilizing a [DrawBackend]. See the `embedded.rs` example.
 //! 
+//! # `log` crate compatibility
+//! 
+//! Enable the `log` feature in wtk to make wtk log using [log](https://docs.rs/log/latest/log/). You can then display those logs with something like [env_logger](https://docs.rs/env_logger/latest/env_logger/). See the `logger.rs` example.
+//! 
 //! [App]: app:App
 //! [DrawBackend]: draw:DrawBackend
 //! 
@@ -36,3 +40,4 @@ pub mod theme;
 #[cfg(feature = "elm")]
 pub mod elm;
 mod ffi;
+mod log;

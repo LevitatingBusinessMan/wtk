@@ -1,5 +1,5 @@
 use sdl3::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
-use crate::{font::{self}, prelude::*, theme};
+use crate::{font::{self}, log::debug, prelude::*, theme};
 
 use super::DrawBackend;
 
@@ -68,7 +68,7 @@ impl Into<Event> for sdl3::event::Event {
             // },
             Self::Unknown { timestamp: _, type_: _ } => { Event::Unsupported },
             _ => {
-                eprintln!("Unknown SDL event: {self:?}");
+                debug!("Unknown SDL event: {self:?}");
                 Event::Unsupported
             }
         }
