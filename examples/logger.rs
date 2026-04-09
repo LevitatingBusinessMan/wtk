@@ -1,4 +1,4 @@
-use log::{Level, LevelFilter, Metadata, Record};
+use log::{Level, LevelFilter, Metadata, Record, info};
 
 extern crate wtk;
 use wtk::prelude::*;
@@ -8,6 +8,7 @@ fn main() {
     let mut app = App::<SDLBackend>::new("WTK button example");
     let button = Button::new("clickme", |b| {
         b.set_text("clicked");
+        info!("clicked");
     });
     app.add_widget(button.shared());
     app.run();

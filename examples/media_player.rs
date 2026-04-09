@@ -1,6 +1,7 @@
 use mpris;
 use mpris::Player;
 use mpris::PlayerFinder;
+use log::{warn, trace};
 use wtk::elm_cb;
 use wtk::enclose;
 use wtk::prelude::*;
@@ -40,6 +41,7 @@ pub enum MediaPlayerMessage {
 
 impl MediaPlayer {
     pub fn new() -> Self {
+        env_logger::init();
         let (sender, receiver) = mpsc::channel();
         let sender = Arc::new(sender);
 
@@ -105,8 +107,8 @@ impl ElmModel for MediaPlayer {
         &mut self.receiver
     }
 
-    fn update<B>(&mut self, _app: &mut App<B>, msg: Self::Message) where B: Backend {
-        println!("{msg:?}");
+    fn update<B>(&mut self, msg: Self::Message) where B: Backend {
+        trace!("{msg:?}");
         match msg {
                 MediaPlayerMessage::Previous => {
                 if let Some(player) = &self.player {
@@ -134,15 +136,18 @@ impl ElmModel for MediaPlayer {
             },
             MediaPlayerMessage::UpdateStatus => {
                 if let Some(player) = &self.player {
-                    let metadata = player.get_metadata().unwrap();
-                    let position = player.get_position().unwrap();
-                    let artists = metadata.artists().map_or("?".to_string(), |arts| arts.join(", ").to_string());
-                    let title = metadata.title().unwrap_or("?");
-                    self.playing_label.borrow_mut().set_text(format!("{} - {}", artists, title));
-                    self.player_label.borrow_mut().set_text(format!("Controlling {} ", player.identity()));
-                    self.bar.borrow_mut().progress = metadata.length().map_or(0.0, |length| position.as_secs_f32() / length.as_secs_f32());
-                    if !self.player_list.borrow().hidden() {
-                        self.player_list.replace(create_player_list(&self.player_finder, self.sender.clone()));
+                    if let (Ok(metadata), Ok(position)) = (player.get_metadata(), player.get_position()) {
+                        let artists = metadata.artists().map_or("?".to_string(), |arts| arts.join(", ").to_string());
+                        let title = metadata.title().unwrap_or("?");
+                        self.playing_label.borrow_mut().set_text(format!("{} - {}", artists, title));
+                        self.player_label.borrow_mut().set_text(format!("Controlling {} ", player.identity()));
+                        self.bar.borrow_mut().progress = metadata.length().map_or(0.0, |length| position.as_secs_f32() / length.as_secs_f32());
+                        if !self.player_list.borrow().hidden() {
+                            self.player_list.replace(create_player_list(&self.player_finder, self.sender.clone()));
+                        }   
+                    } else {
+                        watn!("getting player metadata failed");
+                        self.player = None;
                     }
                 } else {
                     self.player_label.borrow_mut().set_text("No player selected");

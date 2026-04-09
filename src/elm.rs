@@ -77,12 +77,12 @@ pub trait ElmModel{
     fn receiver(&mut self) -> &mut mpsc::Receiver<Self::Message>;
 
     /// Process all messages. Returns true if any messages were processed (implying a draw).
-    fn update_all<B>(&mut self, app: &mut App<B>) -> bool where B: Backend  {
+    fn update_all<B>(&mut self) -> bool where B: Backend  {
         let mut draw = false;
         loop {
             match self.receiver().try_recv() {
                 Ok(msg) => {
-                    self.update(app, msg);
+                    self.update::<B>(msg);
                     draw = true;
                 },
                 Err(e) => match e {
@@ -94,7 +94,7 @@ pub trait ElmModel{
         draw
     }
     /// Process a single message.
-    fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) where B: Backend;
+    fn update<B>(&mut self, msg: Self::Message) where B: Backend;
 }
 
 
@@ -163,7 +163,7 @@ impl<B> ElmLoop for App<B> where B: Backend {
         self.draw();
         while !self.quit {
             let draw = self.poll_and_process_event();
-            let draw = model.borrow_mut().update_all(self) || draw;
+            let draw = model.borrow_mut().update_all::<B>() || draw;
             if draw { self.draw(); }
         }
     }

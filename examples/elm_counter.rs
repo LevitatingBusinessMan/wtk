@@ -51,7 +51,7 @@ impl ElmModel for Counter {
         &mut self.receiver
     }
 
-    fn update<B>(&mut self, app: &mut App<B>, msg: Self::Message) where B: Backend {
+    fn update<B>(&mut self, msg: Self::Message) where B: Backend {
         match msg {
             CounterMessage::Increment => self.count += 1,
             CounterMessage::Decrement => self.count -= 1,
