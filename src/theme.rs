@@ -20,7 +20,7 @@ impl std::ops::Deref for ThemeCell {
 
 pub static THEME: ThemeCell = ThemeCell(UnsafeCell::new(DEFAULT));
 
-pub const DEFAULT: Theme = LIGHT;
+pub const DEFAULT: Theme = DARK;
 
 pub const LIGHT: Theme = Theme {
     background: Color::WHITE,
@@ -31,7 +31,7 @@ pub const LIGHT: Theme = Theme {
 pub const DARK: Theme = Theme {
     background: Color::rgb(0x40, 0x40, 0x50),
     primary: Color::WHITE,
-    interactive: Color::rgb(0xcc, 0xcc, 0xcc),
+    interactive: Color::rgb(0x40, 0x40, 0x50),
 };
 
 #[derive(Debug, Clone)]
