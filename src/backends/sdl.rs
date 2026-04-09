@@ -4,8 +4,8 @@ use crate::{font::{self}, log::debug, prelude::*, theme};
 use super::DrawBackend;
 
 pub struct SDLBackend {
-    ctx: Sdl,
-    video: VideoSubsystem,
+    _ctx: Sdl,
+    _video: VideoSubsystem,
     canvas: Canvas<sdl3::video::Window>,
     event_pump: EventPump,
 }
@@ -27,8 +27,8 @@ impl Backend for SDLBackend {
         video.text_input().start(canvas.window());
 
         Self {
-            ctx,
-            video,
+            _ctx: ctx,
+            _video: video,
             canvas,
             event_pump,
         }

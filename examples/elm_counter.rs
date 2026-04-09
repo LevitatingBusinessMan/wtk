@@ -4,7 +4,6 @@ use wtk::elm::ElmLoop;
 use wtk::elm_cb;
 use wtk::enclose;
 use wtk::prelude::*;
-use wtk::widgets::SharedWidget;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::mpsc;
