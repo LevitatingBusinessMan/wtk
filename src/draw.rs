@@ -16,7 +16,7 @@
 
 use std::{cmp, rc::Rc};
 
-use crate::{font, prelude::*, rect::Orientation, theme, widgets::{ChildWidget}};
+use crate::{fonts, prelude::*, rect::Orientation, theme, widgets::ChildWidget};
 
 pub const DEFAULT_PADDING: u32 = 5;
 
@@ -34,7 +34,7 @@ enum DrawCommand {
  * The widget may be unaware of its placement. It can just use the zero point
  * to draw from the top-left corner. The offset is added before sending the commands to the
  * actual rendering backend.
- * 
+ *
  * DrawContext always sets a default color.
 */
 #[derive(Debug)]
@@ -84,7 +84,7 @@ impl DrawContext {
                 },
                 DrawCommand::Color(_color) => {},
                 DrawCommand::Text(text, point) => {
-                    let rect = point.with_size(font::text_size(text));
+                    let rect = point.with_size(fonts::monogram::text_size(text));
                     max.width = cmp::max(max.width, rect.total().width);
                     max.height = cmp::max(max.height, rect.total().height);
                 },

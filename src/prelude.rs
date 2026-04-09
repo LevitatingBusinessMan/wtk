@@ -14,7 +14,7 @@ pub use crate::widgets::Label;
 pub use crate::rect::Orientation;
 pub use crate::widgets::WBox;
 pub use crate::event::input::MouseButton;
-pub use crate::font;
+pub use crate::fonts;
 pub use crate::theme::Theme;
 pub use crate::widgets::Hider;
 pub use crate::widgets::SharedWidget;

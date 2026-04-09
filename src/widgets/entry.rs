@@ -26,9 +26,9 @@ impl Entry {
 
 impl Widget for Entry {
     fn draw(&self, ctx: &mut DrawContext) {
-        let padding = (2.0 * font::scale()) as u32;
+        let padding = (2.0 * fonts::monogram::scale()) as u32;
         ctx.draw_text(&self.text, Point::new(padding, padding));
-        let text_size = font::text_size(&self.text);
+        let text_size = fonts::monogram::text_size(&self.text);
         let width = cmp::max(text_size.width, self.min_width) + padding;
         ctx.draw_rect(Point::zero().with_size(Size::new(width, text_size.height + padding)));
         if self.focus {

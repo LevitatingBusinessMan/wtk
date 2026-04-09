@@ -33,7 +33,7 @@ pub mod prelude;
 pub mod backends;
 pub mod draw;
 pub mod pixels;
-pub mod font;
+pub mod fonts;
 #[macro_use]
 pub mod macros;
 pub mod theme;

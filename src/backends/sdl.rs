@@ -1,5 +1,5 @@
 use sdl3::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
-use crate::{font::{self}, log::debug, prelude::*, theme};
+use crate::{fonts, log::debug, prelude::*, theme};
 
 use super::DrawBackend;
 
@@ -143,16 +143,16 @@ impl DrawBackend for Canvas<sdl3::video::Window> {
 
     fn draw_text(&mut self, text: &str, mut pos: Point) {
         let texture_creator = self.texture_creator();
-        let mut texture = texture_creator.load_texture_bytes(crate::font::MONOGRAM_PNG).unwrap();
+        let mut texture = texture_creator.load_texture_bytes(crate::fonts::monogram::MONOGRAM_PNG).unwrap();
         texture.set_scale_mode(sdl3::render::ScaleMode::Nearest);
         texture.set_color_mod(self.draw_color().r, self.draw_color().g, self.draw_color().b);
         for c in text.chars() {
             self.copy(
                 &texture,
-                Some((&crate::font::source_char(c)).into()),
-                Some((&pos.with_size(font::GLYPH_SIZE * font::scale())).into())
+                Some((&crate::fonts::monogram::source_char(c)).into()),
+                Some((&pos.with_size(fonts::monogram::GLYPH_SIZE * fonts::monogram::scale())).into())
             ).unwrap();
-            pos.x += (font::GLYPH_SIZE * font::scale()).width;
+            pos.x += (fonts::monogram::GLYPH_SIZE * fonts::monogram::scale()).width;
         }
     }
 
