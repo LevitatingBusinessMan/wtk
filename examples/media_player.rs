@@ -61,7 +61,6 @@ impl MediaPlayer {
         inner_box.add_widget(player_list.clone());
 
         let playing_label = Label::new("Playing nothing").shared();
-        inner_box.add_widget(playing_label.clone());
 
         let previous_button = Button::new("<", elm_cb!(sender, _b => MediaPlayerMessage::Previous)).padding(5);
         let play_pause_button = Button::new("||", elm_cb!(sender, _b => MediaPlayerMessage::PlayPause)).padding(5);
@@ -75,6 +74,7 @@ impl MediaPlayer {
         ]);
         
         let controls = WBox::vertical().align(Alignment::Center).with(vec![
+            playing_label.clone(),
             bar.clone(),
             buttons.shared(),
         ]).shared();
@@ -257,7 +257,7 @@ impl Widget for Bar {
                     let start = bounds.x + self.padding;
                     let click = pos.x;
                     let end = start + self.size;
-                    let click_progress = click as f32 / (end - start) as f32;
+                    let click_progress = (click - start) as f32 / (end - start) as f32;
                     let cb = self.cb.clone();
                     cb(click_progress);
                     true
