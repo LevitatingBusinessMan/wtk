@@ -45,32 +45,41 @@ impl MediaPlayer {
         let (sender, receiver) = mpsc::channel();
         let sender = Arc::new(sender);
 
-        let mut player_box = WBox::new(Orientation::Horizontal);
+        let mut inner_box = WBox::vertical();
+
         let player_label = Label::new(String::new()).shared();
         let player_list_button = Button::new("+", elm_cb!(sender, _b => MediaPlayerMessage::TogglePlayerList)).padding(2).shared();
-        player_box.add_widget(player_label.clone()).add_widget(player_list_button.clone());
 
-        let playing_label = Label::new("Playing: error").shared();
+        inner_box.add_widget(WBox::horizontal().with(vec![
+            player_label.clone(),
+            player_list_button.clone(),
+        ]).shared());
+
+        let player_list = WBox::vertical();
+        let player_list = Hider::<WBox>::new(player_list, true).shared();
+
+        inner_box.add_widget(player_list.clone());
+
+        let playing_label = Label::new("Playing nothing").shared();
+        inner_box.add_widget(playing_label.clone());
+
         let previous_button = Button::new("<", elm_cb!(sender, _b => MediaPlayerMessage::Previous)).padding(5);
         let play_pause_button = Button::new("||", elm_cb!(sender, _b => MediaPlayerMessage::PlayPause)).padding(5);
         let next_button = Button::new(">", elm_cb!(sender, _b => MediaPlayerMessage::Next)).padding(5);
         let bar = Bar::new(300, elm_cb!(sender, progress => MediaPlayerMessage::SetProgress(progress))).shared();
 
-        let mut inner_box = WBox::new(Orientation::Vertical);
-        let mut buttons = WBox::new(Orientation::Horizontal);
-        buttons.add_widget(previous_button.shared());
-        buttons.add_widget(play_pause_button.shared());
-        buttons.add_widget(next_button.shared());
-        let buttons = Centered::new(buttons.shared(), Orientation::Horizontal, 300);
+        let mut buttons = WBox::horizontal().align(Alignment::Center).with(vec![
+            previous_button.shared(),
+            play_pause_button.shared(),
+            next_button.shared(),
+        ]);
+        
+        let controls = WBox::vertical().align(Alignment::Center).with(vec![
+            bar.clone(),
+            buttons.shared(),
+        ]).shared();
 
-        let player_list = WBox::new(Orientation::Vertical);
-        let player_list = Hider::<WBox>::new(player_list, true).shared();
-
-        inner_box.add_widget(player_box.shared());
-        inner_box.add_widget(player_list.clone());
-        inner_box.add_widget(playing_label.clone());
-        inner_box.add_widget(bar.clone());
-        inner_box.add_widget(buttons.shared());
+        inner_box.add_widget(controls);
 
         let player_finder = PlayerFinder::new().unwrap();
         let player = find_player(&player_finder).ok();
@@ -151,7 +160,7 @@ impl ElmModel for MediaPlayer {
                     }
                 } else {
                     self.player_label.borrow_mut().set_text("No player selected");
-                    self.playing_label.borrow_mut().set_text("Playing: nothing");
+                    self.playing_label.borrow_mut().set_text("Playing nothing");
                 }
             },
             MediaPlayerMessage::SetProgress(progress) => {
@@ -189,7 +198,7 @@ impl Widget for MediaPlayer {
 }
 
 fn create_player_list(player_finder: &PlayerFinder, sender: Arc<mpsc::Sender<MediaPlayerMessage>>) -> Hider<WBox> {
-    let mut new_box = WBox::new(Orientation::Vertical);
+    let mut new_box = WBox::vertical();
     for player in player_finder.iter_players().unwrap() {
         if let Ok(player) = player {
             let button = Button::new(player.identity().to_string(), elm_cb!(sender, _b => MediaPlayerMessage::ChangePlayer(player.identity().to_string())));
