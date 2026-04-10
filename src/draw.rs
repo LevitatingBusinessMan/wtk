@@ -16,7 +16,7 @@
 
 use std::{cmp, rc::Rc};
 
-use crate::{font, prelude::*, rect::Orientation, theme, widgets::{ChildWidget}};
+use crate::{font, prelude::*, rect::{Alignment, Orientation}, theme, widgets::ChildWidget};
 
 pub const DEFAULT_SPACING: u32 = 5;
 
@@ -98,6 +98,7 @@ impl DrawContext {
     /// For drawing many widgets at ones. This may be used by container like widgets.
     /// Child widgets each get a DrawContext of which the commands are merged with the parents.
     /// Each widget has a corresponding Cell in which the relative bounds are stored.
+    #[deprecated]
     pub fn draw_widgets(&mut self, orientation: Orientation, spacing: u32, at: Option<Point>, widgets: &[ChildWidget]) {
         let mut cursor = at.unwrap_or(Point::zero());
         for child in widgets {
@@ -112,7 +113,46 @@ impl DrawContext {
             }
         }
     }
-    
+
+    /// Draw any numer of widgets in a specific orientation and alignment.
+    /// This can be used for container widgets to draw children.
+    /// Takes a slice of [ChildWidget]s, in which the widget bounds will be stored.
+    pub fn draw_widgets_aligned(&mut self, orientation: Orientation, alignment: Alignment, spacing: u32, at: Option<Point>, widgets: &[ChildWidget]) {
+        // some terminology from https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Flexbox#the_flex_model
+        let mut cursor = at.unwrap_or(Point::zero());
+        let children: Vec<(DrawContext, Size)> = widgets.iter().map(|child| {
+            let mut ctx = DrawContext::new();
+            child.widget.borrow().draw(&mut ctx);
+            let size = ctx.size();
+            (ctx, size)
+        }).collect();
+        let max_cross_size = children.iter().map(|(_, size)| match orientation {
+            Orientation::Horizontal => size.height,
+            Orientation::Vertical => size.width,
+        }).max().unwrap_or(0);
+        for ((child_ctx, size), child) in children.into_iter().zip(widgets.iter()) {
+            let this_cross_size = match orientation {
+                Orientation::Horizontal => size.height,
+                Orientation::Vertical => size.width,
+            };
+            let cross_offset = match alignment {
+                Alignment::Start => 0,
+                Alignment::Center => (max_cross_size - this_cross_size) / 2,
+                Alignment::End => max_cross_size - this_cross_size,
+            };
+            let pos = cursor + match orientation {
+                Orientation::Horizontal => Point::new(0, cross_offset),
+                Orientation::Vertical => Point::new(cross_offset, 0),
+            };
+            self.merge_at(pos, child_ctx);
+            child.bounds.set(pos.with_size(size));
+            match orientation {
+                Orientation::Horizontal => cursor.x += size.width + spacing,
+                Orientation::Vertical => cursor.y += size.height + spacing,
+            }
+        }
+    }
+
     /// empty drawing operating for increasing the claimed bounds
     pub fn claim(&mut self, rect: Rect) {
         self.commands.push(DrawCommand::Claim(rect));

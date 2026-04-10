@@ -9,11 +9,11 @@ fn main() {
     let button2 = Button::new("clickme", |b| {
         b.set_text("clicked");
     }).shared();
-    let mut box_ = WBox::new(Orientation::Horizontal);
-    box_.add_widget(button1);
-    box_.add_widget(button2);
-    box_.set_padding(5);
-    box_.set_border(true);
-    app.add_widget(box_.shared());
+    let box_ = WBox::horizontal()
+        .border(true)
+        .padding(5)
+        .with(vec![button1, button2])
+        .shared();
+    app.add_widget(box_);
     app.run();
 }

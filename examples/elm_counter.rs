@@ -27,10 +27,10 @@ impl Counter {
         let dec_button = Button::new("-", elm_cb!(sender, _b => CounterMessage::Decrement)).shared();
         let inc_button = Button::new("+", elm_cb!(sender, _b => CounterMessage::Increment)).shared();
         let counter_label = Label::new("Count: 0").shared();
-        let mut inner = WBox::new(Orientation::Vertical);
-        inner.set_padding(6);
-        inner.add_widget(counter_label.clone());
-        inner.add_widget(WBox::with(Orientation::Horizontal, vec![dec_button, inc_button]).shared());
+        let inner = WBox::vertical().padding(6).with(vec![
+            counter_label.clone(),
+            WBox::horizontal().with(vec![dec_button, inc_button]).shared()
+        ]);
         Counter { count: 0, inner, counter_label, receiver }
     }
 }

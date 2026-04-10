@@ -18,9 +18,11 @@ fn main() {
         label.borrow_mut().set_text(format!("Counter: {}", count.borrow()));
     })).shared();
     app.add_widget(label);
-    let mut box_ = WBox::new(Orientation::Horizontal);
-    box_.add_widget(button1);
-    box_.add_widget(button2);
-    app.add_widget(box_.shared());
+    app.add_widget(
+        WBox::horizontal().with(vec![
+            button1,
+            button2
+        ]).shared()
+    );
     app.run();
 }

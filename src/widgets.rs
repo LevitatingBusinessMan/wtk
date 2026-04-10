@@ -10,8 +10,6 @@ pub mod entry;
 pub use entry::Entry;
 pub mod hider;
 pub use hider::Hider;
-pub mod centered;
-pub use centered::Centered;
 
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;

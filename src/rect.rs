@@ -185,6 +185,11 @@ pub enum Orientation {
     Horizontal, Vertical
 }
 
+#[derive(Clone, Copy)]
+pub enum Alignment {
+    Start, Center, End
+}
+
 impl ops::Add<u32> for Rect {
     type Output = Rect;
 
