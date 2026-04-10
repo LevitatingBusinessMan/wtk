@@ -146,7 +146,7 @@ impl ElmModel for MediaPlayer {
                             self.player_list.replace(create_player_list(&self.player_finder, self.sender.clone()));
                         }   
                     } else {
-                        watn!("getting player metadata failed");
+                        warn!("getting player metadata failed");
                         self.player = None;
                     }
                 } else {
