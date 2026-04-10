@@ -20,9 +20,11 @@ impl<B> App<B> where B: Backend {
             quit: false,
         }
     }
+
     pub fn add_widget(&mut self, widget: SharedWidget) {
         self.widgets.push(ChildWidget::new(widget));
     }
+
     pub fn process_event(&mut self, e: &Event) -> bool {
         let mut draw = false;
         match e {
@@ -60,27 +62,6 @@ impl<B> App<B> where B: Backend {
             false
         }
     }
-
-    // fn draw(&mut self) {
-    //     let backend = self.backend.draw_backend();
-    //     backend.clear();
-    //     let padding = 5;
-    //     let mut cursor = Point::new(padding, padding);
-    //     let mut window_size = Size::new(0, 0);
-    //     for widget in &self.widgets {
-    //         let mut widget = widget.borrow_mut();
-    //         let mut ctx = DrawContext::new(cursor);
-    //         widget.draw(&mut ctx);
-    //         let bounds = ctx.bounds();
-    //         widget.set_bounds(bounds);
-    //         cursor.y += bounds.height + padding; // move down
-    //         window_size.height = cmp::max(window_size.height, bounds.total().height);
-    //         window_size.width = cmp::max(window_size.width, bounds.total().width);
-    //         ctx.run_backend(backend);
-    //     }
-    //     backend.present();
-    //     self.backend.resize(window_size + padding);
-    // }
 
     /// Manually tell the backend to draw all widges. Useful for use in custom update loops.
     pub fn draw(&mut self) {
