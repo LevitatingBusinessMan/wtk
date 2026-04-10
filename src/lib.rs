@@ -22,8 +22,8 @@
 //! 
 //! Enable the `log` feature in wtk to make wtk log using [log](https://docs.rs/log/latest/log/). You can then display those logs with something like [env_logger](https://docs.rs/env_logger/latest/env_logger/). See the `logger.rs` example.
 //! 
-//! [App]: app:App
-//! [DrawBackend]: draw:DrawBackend
+//! [App]: app::App
+//! [DrawBackend]: backends::DrawBackend
 //! 
 pub mod widgets;
 pub mod rect;

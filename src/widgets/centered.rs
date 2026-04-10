@@ -1,8 +1,5 @@
 use crate::{draw::DrawContextInternal, prelude::*, widgets::ChildWidget};
 
-/// Wraps around another widget to hide it.
-/// 
-/// [Widget::set_bounds] and [Widget::process_event] are passed through.
 pub struct Centered {
     pub inner: ChildWidget,
     orientation: Orientation,
