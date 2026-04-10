@@ -111,6 +111,12 @@ impl cmp::PartialOrd for Point {
     }
 }
 
+// impl From<(u32, u32)> for Point {
+//     fn from((x, y): (u32, u32)) -> Self {
+//         Point { x, y }
+//     }
+// }
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Size {
     pub width: u32,

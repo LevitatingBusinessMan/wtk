@@ -6,8 +6,8 @@ use crate::draw;
 pub struct WBox {
     widgets: Vec<ChildWidget>,
     orientation: Orientation,
+    spacing: u32,
     padding: u32,
-    margin: u32,
     border: bool,
 }
 
@@ -17,8 +17,8 @@ impl WBox {
             widgets: vec![],
             orientation,
             border: false,
-            padding: draw::DEFAULT_PADDING,
-            margin: 0,
+            spacing: draw::DEFAULT_SPACING,
+            padding: 0,
         }
     }
     pub fn with(orientation: Orientation, widgets: Vec<SharedWidget>) -> Self {
@@ -26,8 +26,8 @@ impl WBox {
             widgets: widgets.into_iter().map(ChildWidget::new).collect(),
             orientation,
             border: false,
-            padding: draw::DEFAULT_PADDING,
-            margin: 0,
+            spacing: draw::DEFAULT_SPACING,
+            padding: 0,
         }
     }
     pub fn add_widget(&mut self, widget: SharedWidget) -> &mut Self {
@@ -42,26 +42,22 @@ impl WBox {
         self.border = border;
         self
     }
-    pub fn set_padding(&mut self, padding: u32) -> &mut Self {
-        self.padding = padding;
+    pub fn set_spacing(&mut self, spacing: u32) -> &mut Self {
+        self.spacing = spacing;
         self
     }
-    pub fn set_margin(&mut self, margin: u32) -> &mut Self {
-        self.margin = margin;
+    pub fn set_padding(&mut self, padding: u32) -> &mut Self {
+        self.padding = padding;
         self
     }
 }
 
 impl Widget for WBox {
     fn draw(&self, ctx: &mut DrawContext) {
-        ctx.draw_widgets(self.orientation, self.padding, Some(Point::new(self.margin, self.margin)), &self.widgets);
-        if self.margin > 0 {
-            let bounds = ctx.bounds();
-            ctx.claim(Rect::new(0, 0, bounds.width + self.margin, bounds.height + self.margin));
-        }
+        ctx.draw_widgets(self.orientation, self.spacing, Some(Point::new(self.padding, self.padding)), &self.widgets);
         if self.border {
-            let bounds = ctx.bounds();
-            ctx.draw_rect(Rect::new(0, 0, bounds.width, bounds.height));
+            let size = ctx.size();
+            ctx.draw_rect(Point::zero().with_size(size + self.padding));
         }
     }
     fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {

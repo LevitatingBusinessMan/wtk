@@ -226,26 +226,26 @@ struct Bar {
     pub progress: f32,
     pub size: u32,
     cb: Rc<dyn Fn(f32)>,
-    pub margin: u32,
+    pub padding: u32,
 }
 
 impl Widget for Bar {
     fn draw(&self, ctx: &mut DrawContext) {
         let thickness = 2;
-        let margin = 5;
+        let padding = 5;
         ctx.set_color(Color::rgb(0xdd, 0xdd, 0xdd));
-        let background = Rect::new(0, margin, self.size, thickness);
+        let background = Rect::new(0, padding, self.size, thickness);
         ctx.draw_rect(background);
         ctx.set_color(THEME.primary);
-        ctx.draw_rect(Rect::new(0, margin, (self.size as f32 * self.progress) as u32, thickness));
-        ctx.claim(background + margin);
+        ctx.draw_rect(Rect::new(0, padding, (self.size as f32 * self.progress) as u32, thickness));
+        ctx.claim(background + padding);
     }
     
     fn process_event(&mut self, e: &Event, bounds: Rect) -> bool {
         match e {
             Event::MouseButtonDown { button, pos } => {
                 if matches!(button, MouseButton::Left) && pos.is_in(bounds) {
-                    let start = bounds.x + self.margin;
+                    let start = bounds.x + self.padding;
                     let click = pos.x;
                     let end = start + self.size;
                     let click_progress = click as f32 / (end - start) as f32;
@@ -267,7 +267,7 @@ impl Bar {
             progress: 0.0,
             size,
             cb: Rc::new(cb),
-            margin: 10,
+            padding: 10,
         }
     }
 }

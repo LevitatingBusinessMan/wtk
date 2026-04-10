@@ -33,9 +33,8 @@ impl<B> App<B> where B: Backend {
             Event::Resized(_) => { draw = true },
             _ => {},
         }
-        let padding = Point::new(draw::DEFAULT_PADDING, draw::DEFAULT_PADDING);
         for child in &self.widgets {
-            draw |= child.widget.borrow_mut().process_event(e, padding + child.bounds.get());
+            draw |= child.widget.borrow_mut().process_event(e, child.bounds.get());
         }
         draw
     }
@@ -87,15 +86,15 @@ impl<B> App<B> where B: Backend {
     pub fn draw(&mut self) {
         let backend = self.backend.draw_backend();
         backend.clear();
-        let padding = draw::DEFAULT_PADDING;
-        let mut ctx = DrawContext::new(Point::new(padding, padding));
-        ctx.draw_widgets(Orientation::Vertical, draw::DEFAULT_PADDING, None, &self.widgets);
+        let padding = draw::DEFAULT_SPACING;
+        let mut ctx = DrawContext::new();
+        ctx.draw_widgets(Orientation::Vertical, draw::DEFAULT_SPACING, Some(Point::new(padding, padding)), &self.widgets);
         ctx.run_backend(backend);
         backend.present();
-        let size = ctx.bounds().size();
+        let size = ctx.size();
         if self.size != size {
             self.size = size;
-            self.backend.resize(size + padding * 2);
+            self.backend.resize(size + padding);
         }
     }
 }
