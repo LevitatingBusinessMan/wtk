@@ -59,7 +59,7 @@ impl Widget for Button {
     }
     
     fn draw(&self, ctx: &mut DrawContext) {
-        let text_size = fonts::monogram::text_size(&self.text);
+        let text_size = fonts::DEFAULT_FONT.rendered_text_size(&self.text);
         let mut button_size = text_size + self.padding * 2;
         if self.pressed {
             button_size += 2;

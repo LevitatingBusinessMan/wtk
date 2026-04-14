@@ -76,13 +76,12 @@ impl<B> App<B> where B: Backend {
 
     /// Manually tell the backend to draw all widges. Useful for use in custom update loops.
     pub fn draw(&mut self) {
-        let backend = self.backend.draw_backend();
-        backend.clear();
+        self.backend.clear();
         let padding = draw::DEFAULT_SPACING;
         let mut ctx = DrawContext::new();
         ctx.draw_widgets(Orientation::Vertical, draw::DEFAULT_SPACING, Some(Point::new(padding, padding)), &self.widgets);
-        ctx.run_backend(backend);
-        backend.present();
+        ctx.run_backend(&mut self.backend);
+        self.backend.present();
         let size = ctx.size();
         if self.size != size {
             self.size = size;

@@ -1,7 +1,8 @@
-use sdl3::{self, event::WindowEvent, image::LoadTexture, mouse::MouseButton, render::Canvas, EventPump, Sdl, VideoSubsystem};
-use crate::{fonts, log::debug, prelude::*, theme};
+use std::collections::HashMap;
 
-use super::DrawBackend;
+use sdl3::{self, EventPump, Sdl, VideoSubsystem, event::WindowEvent, image::LoadTexture, mouse::MouseButton, pixels::PixelFormat, render::{Canvas, Texture, TextureCreator}, video::{Window, WindowContext}};
+use crate::{fonts::{self, DEFAULT_FONT}, log::debug, prelude::*, theme};
+
 
 pub struct SDLBackend {
     _ctx: Sdl,
@@ -21,7 +22,7 @@ impl Backend for SDLBackend {
         let mut canvas = win.into_canvas();
         let event_pump = ctx.event_pump().unwrap();
 
-        DrawBackend::clear(&mut canvas);
+        canvas.clear();
         canvas.present();
 
         video.text_input().start(canvas.window());
@@ -36,11 +37,68 @@ impl Backend for SDLBackend {
     fn poll_event(&mut self) -> Option<Event> {
         self.event_pump.poll_event().map(Into::<Event>::into)
     }
-    fn draw_backend(&mut self) -> &mut impl DrawBackend {
-        &mut self.canvas
-    }
     fn resize(&mut self, size: Size) {
         self.canvas.window_mut().set_size(size.width, size.height).unwrap();
+    }
+    fn draw_rect(&mut self, rect: Rect) {
+        self.canvas.draw_rect(rect).unwrap();
+    }
+
+    fn clear(&mut self) {
+        self.canvas.set_draw_color(theme::THEME.background);
+        self.canvas.clear();
+    }
+
+    fn present(&mut self) {
+        self.canvas.present();
+    }
+
+    fn set_color(&mut self, color: Color) {
+        self.canvas.set_draw_color(color);
+    }
+
+    fn draw_text(&mut self, text: &str, pos: Point) {
+        let width = text.len() as u32 * 8;
+        let height = DEFAULT_FONT.height as u32;
+        let texture_creator = self.canvas.texture_creator();
+        let bytes_per_pixel = 4;
+        let mut texture = texture_creator.create_texture_streaming(PixelFormat::ABGR8888, width, height).unwrap();
+        texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
+            for (i, c) in text.chars().enumerate() {
+                let x = i * 8;
+                let y = 0;
+                let glyph = DEFAULT_FONT.get(c);
+                for (row, bits) in glyph.iter().enumerate() {
+                    for col in 0..8 {
+                        let offset = (y + row) * pitch + (x + col) * bytes_per_pixel;
+                        let alpha = if (bits >> (7 - col)) & 1 == 1 { 255 } else { 0 };
+                        buffer[offset..offset+bytes_per_pixel].copy_from_slice(&[255, 255, 255, alpha]);
+                    }
+                }
+            }
+        }).unwrap();
+        texture.set_scale_mode(sdl3::render::ScaleMode::Nearest);
+        texture.set_color_mod(self.canvas.draw_color().r, self.canvas.draw_color().g,self.canvas.draw_color().b);
+        self.canvas.copy(&texture, None, Some(pos.with_size(DEFAULT_FONT.rendered_text_size(text)).into())).unwrap();
+    }
+
+    // fn draw_text(&mut self, text: &str, mut pos: Point) {
+    //     let texture_creator = self.texture_creator();
+    //     let mut texture = texture_creator.load_texture_bytes(crate::fonts::monogram::MONOGRAM_PNG).unwrap();
+    //     texture.set_scale_mode(sdl3::render::ScaleMode::Nearest);
+    //     texture.set_color_mod(self.draw_color().r, self.draw_color().g, self.draw_color().b);
+    //     for c in text.chars() {
+    //         self.copy(
+    //             &texture,
+    //             Some((&crate::fonts::monogram::source_char(c)).into()),
+    //             Some((&pos.with_size(fonts::monogram::GLYPH_SIZE * fonts::monogram::scale())).into())
+    //         ).unwrap();
+    //         pos.x += (fonts::monogram::GLYPH_SIZE * fonts::monogram::scale()).width;
+    //     }
+    // }
+
+    fn fill_rect(&mut self, rect: Rect) {
+        self.canvas.fill_rect(sdl3::render::FRect::from(rect)).unwrap();
     }
 }
 
@@ -123,43 +181,9 @@ impl From<Rect> for sdl3::render::FRect {
     }
 }
 
-impl DrawBackend for Canvas<sdl3::video::Window> {
-    fn draw_rect(&mut self, rect: Rect) {
-        self.draw_rect(rect).unwrap();
-    }
-
-    fn clear(&mut self) {
-        self.set_draw_color(theme::THEME.background);
-        self.clear();
-    }
-
-    fn present(&mut self) {
-        self.present();
-    }
-
-    fn set_color(&mut self, color: Color) {
-        self.set_draw_color(color);
-    }
-
-    fn draw_text(&mut self, text: &str, mut pos: Point) {
-        let texture_creator = self.texture_creator();
-        let mut texture = texture_creator.load_texture_bytes(crate::fonts::monogram::MONOGRAM_PNG).unwrap();
-        texture.set_scale_mode(sdl3::render::ScaleMode::Nearest);
-        texture.set_color_mod(self.draw_color().r, self.draw_color().g, self.draw_color().b);
-        for c in text.chars() {
-            self.copy(
-                &texture,
-                Some((&crate::fonts::monogram::source_char(c)).into()),
-                Some((&pos.with_size(fonts::monogram::GLYPH_SIZE * fonts::monogram::scale())).into())
-            ).unwrap();
-            pos.x += (fonts::monogram::GLYPH_SIZE * fonts::monogram::scale()).width;
-        }
-    }
-
-    fn fill_rect(&mut self, rect: Rect) {
-        self.fill_rect(sdl3::render::FRect::from(rect)).unwrap();
-    }
-}
+// impl DrawBackend for Canvas<sdl3::video::Window> {
+    
+// }
 
 impl Into<sdl3::pixels::Color> for Color {
     fn into(self) -> sdl3::pixels::Color {

@@ -16,7 +16,7 @@
 
 use std::{cmp, rc::Rc};
 
-use crate::{fonts, prelude::*, rect::{Alignment, Orientation}, theme, widgets::ChildWidget};
+use crate::{fonts, log::debug, prelude::*, rect::{Alignment, Orientation}, theme, widgets::ChildWidget};
 
 pub const DEFAULT_SPACING: u32 = 5;
 
@@ -78,7 +78,7 @@ impl DrawContext {
                 },
                 DrawCommand::Color(_color) => {},
                 DrawCommand::Text(text, point) => {
-                    let rect = point.with_size(fonts::monogram::text_size(text));
+                    let rect = point.with_size(fonts::DEFAULT_FONT.rendered_text_size(text));
                     max.width = cmp::max(max.width, rect.total().width);
                     max.height = cmp::max(max.height, rect.total().height);
                 },
@@ -164,7 +164,7 @@ pub trait DrawContextInternal {
     // /// Merge the commands of another [DrawContext] into this one.
     // fn merge(&mut self, ctx: DrawContext);
     /// Execute all draw commands using a [DrawBackend]. 
-    fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend;
+    fn run_backend<B>(&self, backend: &mut B) where B: Backend;
     // /// Update the zero point. This is may lead to unexpected bugs,
     // /// be careful not to mess up the bounds information for the widgets.
     // fn set_zero_point(&mut self, point: Point);
@@ -177,7 +177,7 @@ pub trait DrawContextInternal {
 }
 
 impl DrawContextInternal for DrawContext {
-    fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
+    fn run_backend<B>(&self, backend: &mut B) where B: Backend  {
         for command in &self.commands {
             match command {
                 DrawCommand::Rect(rect) => backend.draw_rect(*rect),

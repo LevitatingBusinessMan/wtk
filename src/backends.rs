@@ -9,12 +9,7 @@ use crate::prelude::*;
 pub trait Backend {
     fn init(title: &str) -> Self;
     fn poll_event(&mut self) -> Option<Event>;
-    fn draw_backend(&mut self) -> &mut impl DrawBackend;
     fn resize(&mut self, size: Size); 
-}
-
-/// Trait for the windows drawing surface
-pub trait DrawBackend {
     /// Draw a [Rect]
     fn draw_rect(&mut self, rect: Rect);
     /// Use a specific color
