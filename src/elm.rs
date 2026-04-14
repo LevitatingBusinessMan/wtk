@@ -30,6 +30,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use std::sync::mpsc;
+use std::time::Duration;
 use crate::prelude::*;
 
 /**
@@ -162,9 +163,13 @@ impl<B> ElmLoop for App<B> where B: Backend {
     fn elm_run<M>(&mut self, model: Rc<RefCell<M>>) where M: ElmModel {
         self.draw();
         while !self.quit {
-            let draw = self.poll_and_process_event();
+            let mut draw = false;
+            while let Some(e) = self.poll_event() {
+                draw = self.process_event(&e) || draw;
+            }
             let draw = model.borrow_mut().update_all::<B>() || draw;
             if draw { self.draw(); }
+            std::thread::sleep(Duration::from_secs_f64(1.0 / crate::app::WTK_TARGET_FPS));
         }
     }
 }

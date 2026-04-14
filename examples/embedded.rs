@@ -46,11 +46,11 @@ fn main() {
             ], None, VertexIndices::Sequential).unwrap();
             
             // here we draw WTK widgets
-            let mut ctx = wtk::draw::DrawContext::new(Point::zero());
+            let mut ctx = wtk::draw::DrawContext::new();
             ctx.draw_widgets(Orientation::Vertical, 0, None, &widgets);
-            let size = ctx.bounds().size();
+            let size = ctx.size();
             wtk_origin = Point::new(400 - size.width / 2, 300 - size.height / 2);
-            ctx.set_zero_point(wtk_origin);
+            ctx.move_to(wtk_origin);
             ctx.run_backend(&mut canvas);
             canvas.present();
         }

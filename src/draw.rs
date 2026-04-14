@@ -16,9 +16,9 @@
 
 use std::{cmp, rc::Rc};
 
-use crate::{fonts, prelude::*, rect::Orientation, theme, widgets::ChildWidget};
+use crate::{fonts, prelude::*, rect::{Alignment, Orientation}, theme, widgets::ChildWidget};
 
-pub const DEFAULT_PADDING: u32 = 5;
+pub const DEFAULT_SPACING: u32 = 5;
 
 #[derive(Debug, Clone)]
 enum DrawCommand {
@@ -37,9 +37,8 @@ enum DrawCommand {
  *
  * DrawContext always sets a default color.
 */
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DrawContext {
-    zero_point: Point,
     commands: Vec<DrawCommand>,
     //hover: bool,
 }
@@ -57,14 +56,9 @@ impl DrawContext {
     pub fn fill_rect(&mut self, rect: Rect) {
         self.commands.push(DrawCommand::FillRect(rect));
     }
-    /// Get the draw origin
-    pub fn zero_point(&self) -> Point {
-        self.zero_point
-    }
 
-    pub fn new(pos: Point) -> Self {
+    pub fn new() -> Self {
         Self {
-            zero_point: pos,
             commands: vec![
                 DrawCommand::Color(theme::THEME.primary)
             ],
@@ -73,7 +67,7 @@ impl DrawContext {
 
     /// The bounds of all the combined draw commands,
     /// used to generate the next position in the layout.
-    pub fn bounds(&self) -> Rect {
+    pub fn size(&self) -> Size {
         // the maximum drawpoint reached from the zero point
         let mut max = Size::new(0, 0);
         for command in &self.commands {
@@ -98,27 +92,67 @@ impl DrawContext {
                 }
             }
         }
-        self.zero_point.with_size(max)
+        max
     }
     
     /// For drawing many widgets at ones. This may be used by container like widgets.
     /// Child widgets each get a DrawContext of which the commands are merged with the parents.
     /// Each widget has a corresponding Cell in which the relative bounds are stored.
-    pub fn draw_widgets(&mut self, orientation: Orientation, padding: u32, at: Option<Point>, widgets: &[ChildWidget]) {
+    #[deprecated]
+    pub fn draw_widgets(&mut self, orientation: Orientation, spacing: u32, at: Option<Point>, widgets: &[ChildWidget]) {
         let mut cursor = at.unwrap_or(Point::zero());
         for child in widgets {
-            let mut child_ctx = DrawContext::new(self.zero_point() + cursor);
+            let mut child_ctx = DrawContext::new();
             child.widget.borrow().draw(&mut child_ctx);
-            let bounds = child_ctx.bounds();
-            child.bounds.set(Rect::new(cursor.x, cursor.y, bounds.width, bounds.height));
+            let size = child_ctx.size();
+            child.bounds.set(cursor.with_size(size));
+            self.merge_at(cursor, child_ctx);
             match orientation {
-                Orientation::Horizontal => cursor.x += bounds.width + padding,
-                Orientation::Vertical => cursor.y += bounds.height + padding,
+                Orientation::Horizontal => cursor.x += size.width + spacing,
+                Orientation::Vertical => cursor.y += size.height + spacing,
             }
-            self.merge(child_ctx);
         }
     }
-    
+
+    /// Draw any numer of widgets in a specific orientation and alignment.
+    /// This can be used for container widgets to draw children.
+    /// Takes a slice of [ChildWidget]s, in which the widget bounds will be stored.
+    pub fn draw_widgets_aligned(&mut self, orientation: Orientation, alignment: Alignment, spacing: u32, at: Option<Point>, widgets: &[ChildWidget]) {
+        // some terminology from https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Flexbox#the_flex_model
+        let mut cursor = at.unwrap_or(Point::zero());
+        let children: Vec<(DrawContext, Size)> = widgets.iter().map(|child| {
+            let mut ctx = DrawContext::new();
+            child.widget.borrow().draw(&mut ctx);
+            let size = ctx.size();
+            (ctx, size)
+        }).collect();
+        let max_cross_size = children.iter().map(|(_, size)| match orientation {
+            Orientation::Horizontal => size.height,
+            Orientation::Vertical => size.width,
+        }).max().unwrap_or(0);
+        for ((child_ctx, size), child) in children.into_iter().zip(widgets.iter()) {
+            let this_cross_size = match orientation {
+                Orientation::Horizontal => size.height,
+                Orientation::Vertical => size.width,
+            };
+            let cross_offset = match alignment {
+                Alignment::Start => 0,
+                Alignment::Center => (max_cross_size - this_cross_size) / 2,
+                Alignment::End => max_cross_size - this_cross_size,
+            };
+            let pos = cursor + match orientation {
+                Orientation::Horizontal => Point::new(0, cross_offset),
+                Orientation::Vertical => Point::new(cross_offset, 0),
+            };
+            self.merge_at(pos, child_ctx);
+            child.bounds.set(pos.with_size(size));
+            match orientation {
+                Orientation::Horizontal => cursor.x += size.width + spacing,
+                Orientation::Vertical => cursor.y += size.height + spacing,
+            }
+        }
+    }
+
     /// empty drawing operating for increasing the claimed bounds
     pub fn claim(&mut self, rect: Rect) {
         self.commands.push(DrawCommand::Claim(rect));
@@ -127,43 +161,65 @@ impl DrawContext {
 
 /// Internal methods for a [DrawContext]. May be exposed manually via this trait.
 pub trait DrawContextInternal {
-    /// Merge the commands of another [DrawContext] into this one.
-    fn merge(&mut self, ctx: DrawContext);
+    // /// Merge the commands of another [DrawContext] into this one.
+    // fn merge(&mut self, ctx: DrawContext);
     /// Execute all draw commands using a [DrawBackend]. 
     fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend;
-    /// Update the zero point. This is may lead to unexpected bugs,
-    /// be careful not to mess up the bounds information for the widgets.
-    fn set_zero_point(&mut self, point: Point);
+    // /// Update the zero point. This is may lead to unexpected bugs,
+    // /// be careful not to mess up the bounds information for the widgets.
+    // fn set_zero_point(&mut self, point: Point);
+    /// Place the draw commands of another [DrawContext] into this one,
+    /// mapping them to the location at `at`.
+    fn merge_at(&mut self, at: Point, ctx: DrawContext);
+    /// Add the coordinates of a point `at` to all draw commands,
+    /// essentially shifting the drawing to point `at`.
+    fn move_to(&mut self, at: Point);
 }
 
 impl DrawContextInternal for DrawContext {
     fn run_backend<B>(&self, backend: &mut B) where B: DrawBackend  {
         for command in &self.commands {
             match command {
-                DrawCommand::Rect(rect) => backend.draw_rect(self.zero_point() + *rect),
+                DrawCommand::Rect(rect) => backend.draw_rect(*rect),
                 DrawCommand::Color(color) => backend.set_color(*color),
-                DrawCommand::Text(text, point) => backend.draw_text(text, self.zero_point() + *point),
+                DrawCommand::Text(text, point) => backend.draw_text(text, *point),
                 DrawCommand::Claim(_) => {},
-                DrawCommand::FillRect(rect) => backend.fill_rect(self.zero_point() + *rect),
+                DrawCommand::FillRect(rect) => backend.fill_rect(*rect),
             }
         }
     }
-    fn merge(&mut self, ctx: DrawContext) {
-        if ctx.zero_point() < self.zero_point() {
-            panic!()
-        }
-        let diff = ctx.zero_point().abs_diff(self.zero_point);
-        for command in ctx.commands {
-            self.commands.push(match command {
-                DrawCommand::Rect(rect) => DrawCommand::Rect(diff + rect),
-                DrawCommand::Text(str, point) => DrawCommand::Text(str.clone(), diff + point),
-                DrawCommand::Claim(rect) => DrawCommand::Claim(diff + rect),
-                DrawCommand::FillRect(rect) => DrawCommand::FillRect(diff + rect),
+    fn merge_at(&mut self, at: Point, ctx: DrawContext) {
+        let mut ctx = ctx.clone();
+        ctx.move_to(at);
+        self.commands.append(&mut ctx.commands);
+    }
+    fn move_to(&mut self, at: Point) {
+        for command in &mut self.commands {
+            *command = match command {
+                DrawCommand::Rect(rect) => DrawCommand::Rect(at + *rect),
+                DrawCommand::Text(str, point) => DrawCommand::Text(str.clone(), at + *point),
+                DrawCommand::Claim(rect) => DrawCommand::Claim(at + *rect),
+                DrawCommand::FillRect(rect) => DrawCommand::FillRect(at + *rect),
                 _ => command.clone()
-            });
+            };
         }
     }
-    fn set_zero_point(&mut self, point: Point) {
-        self.zero_point = point;
-    }
+    // fn merge(&mut self, ctx: DrawContext) {
+    //     if ctx.zero_point() < self.zero_point() {
+    //         panic!()
+    //     }
+    //     let diff = ctx.zero_point().abs_diff(self.zero_point);
+    //     for command in ctx.commands {
+    //         self.commands.push(match command {
+    //             DrawCommand::Rect(rect) => DrawCommand::Rect(diff + rect),
+    //             DrawCommand::Text(str, point) => DrawCommand::Text(str.clone(), diff + point),
+    //             DrawCommand::Claim(rect) => DrawCommand::Claim(diff + rect),
+    //             DrawCommand::FillRect(rect) => DrawCommand::FillRect(diff + rect),
+    //             _ => command.clone()
+    //         });
+    //     }
+    // }
+    // fn set_zero_point(&mut self, point: Point) {
+    //     self.zero_point = point;
+    // }
 }
