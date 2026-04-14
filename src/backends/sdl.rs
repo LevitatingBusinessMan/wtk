@@ -58,6 +58,7 @@ impl Backend for SDLBackend {
     }
 
     fn draw_text(&mut self, text: &str, pos: Point) {
+        if text.len() == 0 { return; }
         let width = text.len() as u32 * 8;
         let height = DEFAULT_FONT.height as u32;
         let texture_creator = self.canvas.texture_creator();
