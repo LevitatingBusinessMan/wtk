@@ -1,8 +1,12 @@
+use std::time::Duration;
+
 use crate::widgets::ChildWidget;
 use crate::{draw, prelude::*};
 use crate::{event::Event, widgets::SharedWidget};
 use crate::backends::Backend;
 use crate::draw::DrawContextInternal;
+
+pub const WTK_TARGET_FPS: f64 = 30.0;
 
 pub struct App<B> where B: Backend {
     widgets: Vec<ChildWidget>,
@@ -46,22 +50,29 @@ impl<B> App<B> where B: Backend {
     pub fn run(&mut self) {
         self.draw();
         while !self.quit {
-            if let Some(e) = self.backend.poll_event() {
-                let draw = self.process_event(&e);
-                if draw { self.draw(); }
+            let mut draw = false;
+            while let Some(e) = self.poll_event() {
+                draw = self.process_event(&e) || draw;
             }
+            if draw { self.draw(); }
+            std::thread::sleep(Duration::from_secs_f64(1.0 / WTK_TARGET_FPS));
         }
     }
 
-    /// Executes [Backend::poll_event] on the backend. Then optionally process an event.
-    /// If a widget requests a draw true is returned.
-    pub fn poll_and_process_event(&mut self) -> bool {
-        if let Some(e) = self.backend.poll_event() {
-            self.process_event(&e)
-        } else {
-            false
-        }
+    pub(crate) fn poll_event(&mut self) -> Option<Event> {
+        self.backend.poll_event()
     }
+
+    // /// Executes [Backend::poll_event] on the backend. Then optionally process an event.
+    // /// Returns None if no event was processed.
+    // /// Otherwise returns if a draw is requested.
+    // pub fn poll_and_process_event(&mut self) -> Option<bool> {
+    //     if let Some(e) = self.backend.poll_event() {
+    //         Some(self.process_event(&e))
+    //     } else {
+    //         None
+    //     }
+    // }
 
     /// Manually tell the backend to draw all widges. Useful for use in custom update loops.
     pub fn draw(&mut self) {
