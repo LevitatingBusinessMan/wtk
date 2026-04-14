@@ -5,11 +5,13 @@ pub mod monogram;
 pub use hex::UNSCII_8;
 pub use hex::UNSCII_FANTASY_8;
 pub use hex::UNSCII_16;
+pub use hex::UNSCII_THIN_8;
+
 
 use crate::rect;
 use crate::rect::Size;
 
-pub const DEFAULT_FONT: &'static BitmapFont = &UNSCII_8;
+pub const DEFAULT_FONT: &'static BitmapFont = &UNSCII_THIN_8;
 const FONT_SCALING: f64 = 2.0;
 
 /// A bitmap font.

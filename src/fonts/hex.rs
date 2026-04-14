@@ -20,6 +20,12 @@ pub static UNSCII_16: BitmapFont = BitmapFont {
     mapping: |c| c as usize,
 };
 
+pub static UNSCII_THIN_8: BitmapFont = BitmapFont {
+    height: 8,
+    inner: &parse::<8, 128>(include_str!("../assets/fonts/unscii-8-thin.hex")).as_flattened(),
+    mapping: |c| c as usize,
+};
+
 /// parse a hex BitmapFont
 pub const fn parse<const S: usize, const N: usize>(source: &str) -> [[u8; S]; N] {
     let bytes = source.as_bytes();
